@@ -5,9 +5,10 @@ import { Users, UserCheck, Star, MessageSquare } from "lucide-react";
 export default function StatsCards({ responses }) {
   const total = responses.length;
   const associates = responses.filter((r) => r.is_associate).length;
-  const avgRating = total > 0
-    ? (responses.reduce((acc, r) => acc + (r.satisfaction_rating || 0), 0) / total).toFixed(1)
-    : "0";
+  const ratedResponses = responses.filter((r) => r.satisfaction_rating);
+  const avgRating = ratedResponses.length > 0
+    ? (ratedResponses.reduce((acc, r) => acc + r.satisfaction_rating, 0) / ratedResponses.length).toFixed(1)
+    : "—";
   const commentsCount = responses.filter((r) => r.comments && r.comments.trim()).length;
 
   const stats = [
