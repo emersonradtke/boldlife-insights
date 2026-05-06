@@ -40,7 +40,7 @@ export default function SurveyForm() {
     is_associate: null,
     associate_code: "",
     desired_brands: [],
-    desired_products: "",
+    desired_products: [],
     comments: "",
     satisfaction_rating: 0,
   });
@@ -262,15 +262,15 @@ export default function SurveyForm() {
                 </div>
 
                 <div>
-                  <Label htmlFor="desired_products">
+                  <Label className="mb-2 block">
                     Quais produtos gostaria de encontrar?
                   </Label>
-                  <Textarea
-                    id="desired_products"
-                    placeholder="Descreva os tipos de produtos que você gostaria de ver..."
-                    value={formData.desired_products}
-                    onChange={(e) => updateField("desired_products", e.target.value)}
-                    className="mt-1.5 min-h-[80px]"
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Digite o nome do produto e pressione Enter ou clique no +
+                  </p>
+                  <BrandInput
+                    brands={formData.desired_products || []}
+                    onChange={(products) => updateField("desired_products", products)}
                   />
                 </div>
               </CardContent>

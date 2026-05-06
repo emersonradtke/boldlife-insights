@@ -9,6 +9,7 @@ import BrandsChart from "../components/admin/BrandsChart";
 import ResponsesTable from "../components/admin/ResponsesTable";
 import CommentsPanel from "../components/admin/CommentsPanel";
 import QuestionsManager from "../components/admin/QuestionsManager";
+import ProductsChart from "../components/admin/ProductsChart";
 
 export default function AdminDashboard() {
   const { data: responses, isLoading } = useQuery({
@@ -59,8 +60,10 @@ export default function AdminDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <BrandsChart responses={responses} />
-          <CommentsPanel responses={responses} />
+          <ProductsChart responses={responses} />
         </div>
+
+        <CommentsPanel responses={responses} />
 
         <ResponsesTable responses={responses} />
         <QuestionsManager />

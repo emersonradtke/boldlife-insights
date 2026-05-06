@@ -30,8 +30,11 @@
       }
     },
     "desired_products": {
-      "type": "string",
-      "description": "Produtos que gostaria de ver na plataforma"
+      "type": "array",
+      "description": "Produtos que gostaria de ver na plataforma",
+      "items": {
+        "type": "string"
+      }
     },
     "comments": {
       "type": "string",
