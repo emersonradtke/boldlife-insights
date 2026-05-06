@@ -95,6 +95,16 @@ export default function SurveyForm() {
 
   const isFromExternalPlatform = !!associateData;
 
+  // Lógica de habilitação progressiva
+  const hasName = formData.full_name.trim().length > 0;
+  const hasEmail = formData.email.trim().length > 0;
+  const hasPhone = hasEmail; // phone é opcional, mas habilita junto ao email
+  const hasAssociate = !!formData.is_associate;
+  const hasAssociateCode = formData.is_associate !== "yes" || formData.associate_code.trim().length > 0;
+  const hasBrandsSection = hasAssociate && hasAssociateCode;
+  const hasRatingSection = hasBrandsSection;
+  const hasDynamicSection = hasRatingSection;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Top gradient bar */}
@@ -141,6 +151,7 @@ export default function SurveyForm() {
                         onChange={(e) => updateField("email", e.target.value)}
                         className="mt-1.5"
                         readOnly={isFromExternalPlatform}
+                        disabled={!hasName && !isFromExternalPlatform}
                       />
                     </div>
                     <div>
@@ -151,6 +162,7 @@ export default function SurveyForm() {
                         value={formData.phone}
                         onChange={(e) => updateField("phone", e.target.value)}
                         className="mt-1.5"
+                        disabled={!hasEmail && !isFromExternalPlatform}
                       />
                     </div>
                   </div>
@@ -181,9 +193,9 @@ export default function SurveyForm() {
                   <Label className="mb-3 block">Você é associado(a) Bold Life? *</Label>
                   <RadioGroup
                     value={formData.is_associate || ""}
-                    onValueChange={(val) => !isFromExternalPlatform && updateField("is_associate", val)}
+                    onValueChange={(val) => !isFromExternalPlatform && hasEmail && updateField("is_associate", val)}
                     required
-                    className="flex flex-col sm:flex-row gap-3"
+                    className={`flex flex-col sm:flex-row gap-3 transition-opacity duration-200 ${!hasEmail && !isFromExternalPlatform ? "opacity-40 pointer-events-none" : ""}`}
                   >
                     <label className="flex-1 cursor-pointer">
                       <div
@@ -230,6 +242,7 @@ export default function SurveyForm() {
                         onChange={(e) => updateField("associate_code", e.target.value)}
                         className="mt-1.5"
                         readOnly={isFromExternalPlatform}
+                        disabled={!hasAssociate && !isFromExternalPlatform}
                       />
                     </motion.div>
                   )}
@@ -239,7 +252,8 @@ export default function SurveyForm() {
           </motion.div>
 
           {/* Brands & Products */}
-          <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.4 }}>
+          <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.4 }}
+            className={`transition-opacity duration-300 ${!hasBrandsSection ? "opacity-40 pointer-events-none" : ""}`}>
             <Card className="border-0 shadow-md bg-card">
               <CardContent className="p-6 space-y-5">
                 <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
@@ -279,7 +293,8 @@ export default function SurveyForm() {
           </motion.div>
 
           {/* Rating & Comments */}
-          <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.5 }}>
+          <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.5 }}
+            className={`transition-opacity duration-300 ${!hasRatingSection ? "opacity-40 pointer-events-none" : ""}`}>
             <Card className="border-0 shadow-md bg-card">
               <CardContent className="p-6 space-y-5">
                 <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
@@ -315,7 +330,8 @@ export default function SurveyForm() {
 
           {/* Dynamic Questions */}
           {customQuestions.filter((q) => q.is_active).length > 0 && (
-            <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.55 }}>
+            <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.55 }}
+              className={`transition-opacity duration-300 ${!hasDynamicSection ? "opacity-40 pointer-events-none" : ""}`}>
               <Card className="border-0 shadow-md bg-card">
                 <CardContent className="p-6 space-y-5">
                   <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
