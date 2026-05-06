@@ -4,12 +4,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Star, Search } from "lucide-react";
+import { Star, Search, Pencil } from "lucide-react";
 import { format } from "date-fns";
+import EditResponseModal from "./EditResponseModal";
 
 export default function ResponsesTable({ responses }) {
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [editing, setEditing] = useState(null);
 
   const filtered = responses.filter((r) => {
     const matchesSearch =
@@ -24,6 +26,7 @@ export default function ResponsesTable({ responses }) {
   });
 
   return (
+    <>
     <Card className="border-0 shadow-sm">
       <CardHeader className="pb-4">
         <CardTitle className="text-lg">Respostas da Pesquisa</CardTitle>
@@ -61,6 +64,7 @@ export default function ResponsesTable({ responses }) {
                 <TableHead>Marcas</TableHead>
                 <TableHead>Nota</TableHead>
                 <TableHead>Data</TableHead>
+                <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -107,6 +111,15 @@ export default function ResponsesTable({ responses }) {
                     <TableCell className="text-sm text-muted-foreground">
                       {r.created_date ? format(new Date(r.created_date), "dd/MM/yyyy") : "—"}
                     </TableCell>
+                    <TableCell>
+                      <button
+                        onClick={() => setEditing(r)}
+                        className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                        title="Editar resposta"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -115,5 +128,10 @@ export default function ResponsesTable({ responses }) {
         </div>
       </CardContent>
     </Card>
+
+    {editing && (
+      <EditResponseModal response={editing} onClose={() => setEditing(null)} />
+    )}
+    </>
   );
 }
