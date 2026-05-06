@@ -95,12 +95,6 @@ export default function SurveyForm() {
 
   const isFromExternalPlatform = !!associateData;
 
-  // Progressive unlock logic
-  const step1Done = formData.full_name.trim() && formData.email.trim();
-  const step2Done = step1Done && formData.is_associate && (formData.is_associate === "no" || formData.associate_code.trim());
-  const step3Done = step2Done;
-  const step4Done = step3Done;
-
   return (
     <div className="min-h-screen bg-background">
       {/* Top gradient bar */}
@@ -173,8 +167,7 @@ export default function SurveyForm() {
           </motion.div>
 
           {/* Associate Status */}
-          <AnimatePresence>
-          {step1Done && <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
+          <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.3 }}>
             <Card className="border-0 shadow-md bg-card">
               <CardContent className="p-6 space-y-5">
                 <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
@@ -243,12 +236,10 @@ export default function SurveyForm() {
                 </AnimatePresence>
               </CardContent>
             </Card>
-          </motion.div>}
-          </AnimatePresence>
+          </motion.div>
 
           {/* Brands & Products */}
-          <AnimatePresence>
-          {step2Done && <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
+          <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.4 }}>
             <Card className="border-0 shadow-md bg-card">
               <CardContent className="p-6 space-y-5">
                 <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
@@ -285,12 +276,10 @@ export default function SurveyForm() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>}
-          </AnimatePresence>
+          </motion.div>
 
           {/* Rating & Comments */}
-          <AnimatePresence>
-          {step3Done && <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
+          <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.5 }}>
             <Card className="border-0 shadow-md bg-card">
               <CardContent className="p-6 space-y-5">
                 <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
@@ -322,13 +311,11 @@ export default function SurveyForm() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>}
-          </AnimatePresence>
+          </motion.div>
 
           {/* Dynamic Questions */}
-          <AnimatePresence>
-          {step4Done && customQuestions.filter((q) => q.is_active).length > 0 && (
-            <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
+          {customQuestions.filter((q) => q.is_active).length > 0 && (
+            <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.55 }}>
               <Card className="border-0 shadow-md bg-card">
                 <CardContent className="p-6 space-y-5">
                   <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
@@ -346,7 +333,6 @@ export default function SurveyForm() {
               </Card>
             </motion.div>
           )}
-          </AnimatePresence>
 
           {/* Submit */}
           <motion.div

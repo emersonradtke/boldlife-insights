@@ -45,47 +45,40 @@ export default function ProductInput({ products, onChange }) {
             className="w-full"
           />
         </div>
-        {name.trim() && (
-          <>
-            <div>
-              <p className="text-sm font-medium text-foreground mb-2">Quantidade média de consumo desse produto</p>
-            </div>
-            <div className="flex gap-2 items-end">
-              <div className="w-36">
-                <p className="text-xs font-medium text-muted-foreground mb-1">Quantidade média *</p>
-                <Input
-                  type="number"
-                  min="1"
-                  placeholder="Ex: 2"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                />
-              </div>
-              <div className="flex-1">
-                <p className="text-xs font-medium text-muted-foreground mb-1">Periodicidade *</p>
-                <Select value={frequency} onValueChange={setFrequency} disabled={!quantity}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="mensal">Por mês</SelectItem>
-                    <SelectItem value="ocasional">Ocasional</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button
-                type="button"
-                onClick={addProduct}
-                size="icon"
-                disabled={!name.trim() || !quantity}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 mb-0.5"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-          </>
-        )}
+        <div className="flex gap-2 items-end">
+          <div className="w-36">
+            <p className="text-xs font-medium text-muted-foreground mb-1">Quantidade média *</p>
+            <Input
+              type="number"
+              min="1"
+              placeholder="Ex: 2"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
+          <div className="flex-1">
+            <p className="text-xs font-medium text-muted-foreground mb-1">Periodicidade *</p>
+            <Select value={frequency} onValueChange={setFrequency}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mensal">Por mês</SelectItem>
+                <SelectItem value="ocasional">Ocasional</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            type="button"
+            onClick={addProduct}
+            size="icon"
+            disabled={!name.trim() || !quantity}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 mb-0.5"
+          >
+            <Plus className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       <AnimatePresence>
