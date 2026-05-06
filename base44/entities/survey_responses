@@ -1,0 +1,8 @@
+// Salvar resposta
+await supabase.from('survey_responses').insert({ ...formData });
+
+// Listar respostas (admin)
+const { data } = await supabase.from('survey_responses').select('*').order('created_at', { ascending: false });
+
+// Perguntas customizadas
+const { data: questions } = await supabase.from('custom_questions').select('*').order('sort_order');
