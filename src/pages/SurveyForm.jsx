@@ -63,15 +63,19 @@ export default function SurveyForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setIsSubmitting(true);
 
-    await base44.entities.SurveyResponse.create({
-      ...formData,
-      is_associate: formData.is_associate === "yes",
-      associate_code: formData.is_associate === "yes" ? formData.associate_code : "",
-    });
-
-    navigate("/obrigado");
+    try {
+      await base44.entities.SurveyResponse.create({
+        ...formData,
+        is_associate: formData.is_associate === "yes",
+        associate_code: formData.is_associate === "yes" ? formData.associate_code : "",
+      });
+      navigate("/obrigado");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const sectionVariants = {
