@@ -8,10 +8,15 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function BrandInput({ brands, onChange }) {
   const [inputValue, setInputValue] = useState("");
 
-  const addBrand = () => {
-    const trimmed = inputValue.trim();
-    if (trimmed && !brands.includes(trimmed)) {
-      onChange([...brands, trimmed]);
+  const addBrands = (value = inputValue) => {
+    const items = value
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s && !brands.includes(s));
+    if (items.length > 0) {
+      onChange([...brands, ...items]);
+      setInputValue("");
+    } else {
       setInputValue("");
     }
   };
@@ -23,7 +28,13 @@ export default function BrandInput({ brands, onChange }) {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      addBrand();
+      addBrands();
+    }
+  };
+
+  const handleBlur = () => {
+    if (inputValue.trim()) {
+      addBrands();
     }
   };
 
@@ -35,11 +46,12 @@ export default function BrandInput({ brands, onChange }) {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
           className="flex-1"
         />
         <Button
           type="button"
-          onClick={addBrand}
+          onClick={() => addBrands()}
           size="icon"
           className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0"
         >
