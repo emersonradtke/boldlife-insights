@@ -70,6 +70,15 @@ export default function SurveyForm() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handlePhoneChange = (e) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
+    let masked = digits;
+    if (digits.length > 0) masked = `(${digits.slice(0, 2)}`;
+    if (digits.length > 2) masked += `) ${digits.slice(2, 7)}`;
+    if (digits.length > 7) masked += `-${digits.slice(7, 11)}`;
+    updateField("phone", masked);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -157,12 +166,14 @@ export default function SurveyForm() {
                     <div>
                       <Label htmlFor="phone">Telefone</Label>
                       <Input
-                        id="phone"
-                        placeholder="(00) 00000-0000"
-                        value={formData.phone}
-                        onChange={(e) => updateField("phone", e.target.value)}
-                        className="mt-1.5"
-                        disabled={!hasEmail && !isFromExternalPlatform}
+                       id="phone"
+                       placeholder="(00) 00000-0000"
+                       value={formData.phone}
+                       onChange={handlePhoneChange}
+                       className="mt-1.5"
+                       disabled={!hasEmail && !isFromExternalPlatform}
+                       maxLength={16}
+                       inputMode="numeric"
                       />
                     </div>
                   </div>
