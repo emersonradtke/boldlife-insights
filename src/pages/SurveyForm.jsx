@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { Loader2, Send, UserCheck, UserX } from "lucide-react";
 import SurveyHeader from "../components/survey/SurveyHeader";
 import BrandInput from "../components/survey/BrandInput";
 import RatingStars from "../components/survey/RatingStars";
+import DynamicQuestions from "../components/survey/DynamicQuestions";
 
 function decodeToken(token) {
   try {
@@ -25,6 +27,12 @@ export default function SurveyForm() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [associateData, setAssociateData] = useState(null);
+  const [dynamicAnswers, setDynamicAnswers] = useState({});
+
+  const { data: customQuestions = [] } = useQuery({
+    queryKey: ["custom-questions"],
+    queryFn: () => base44.entities.CustomQuestion.list("sort_order", 100),
+  });
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -71,6 +79,7 @@ export default function SurveyForm() {
         ...formData,
         is_associate: formData.is_associate === "yes",
         associate_code: formData.is_associate === "yes" ? formData.associate_code : "",
+        custom_answers: dynamicAnswers,
       });
       navigate("/obrigado");
     } finally {
@@ -302,6 +311,27 @@ export default function SurveyForm() {
               </CardContent>
             </Card>
           </motion.div>
+
+          {/* Dynamic Questions */}
+          {customQuestions.filter((q) => q.is_active).length > 0 && (
+            <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.55 }}>
+              <Card className="border-0 shadow-md bg-card">
+                <CardContent className="p-6 space-y-5">
+                  <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
+                      <span className="text-primary font-bold text-sm">5</span>
+                    </div>
+                    Perguntas Adicionais
+                  </h3>
+                  <DynamicQuestions
+                    questions={customQuestions}
+                    answers={dynamicAnswers}
+                    onChange={(id, val) => setDynamicAnswers((prev) => ({ ...prev, [id]: val }))}
+                  />
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
           {/* Submit */}
           <motion.div

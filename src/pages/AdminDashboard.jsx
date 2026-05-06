@@ -8,6 +8,7 @@ import StatsCards from "../components/admin/StatsCards";
 import BrandsChart from "../components/admin/BrandsChart";
 import ResponsesTable from "../components/admin/ResponsesTable";
 import CommentsPanel from "../components/admin/CommentsPanel";
+import QuestionsManager from "../components/admin/QuestionsManager";
 
 export default function AdminDashboard() {
   const { data: responses, isLoading } = useQuery({
@@ -62,6 +63,7 @@ export default function AdminDashboard() {
         </div>
 
         <ResponsesTable responses={responses} />
+        <QuestionsManager />
       </div>
     </div>
   );

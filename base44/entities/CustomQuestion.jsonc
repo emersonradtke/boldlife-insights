@@ -1,0 +1,38 @@
+{
+  "name": "CustomQuestion",
+  "type": "object",
+  "properties": {
+    "question_text": {
+      "type": "string",
+      "description": "Texto da pergunta"
+    },
+    "question_type": {
+      "type": "string",
+      "enum": [
+        "text",
+        "textarea",
+        "rating",
+        "yesno"
+      ],
+      "description": "Tipo de resposta esperada"
+    },
+    "is_required": {
+      "type": "boolean",
+      "description": "Se a pergunta \u00e9 obrigat\u00f3ria",
+      "default": false
+    },
+    "is_active": {
+      "type": "boolean",
+      "description": "Se a pergunta est\u00e1 ativa no formul\u00e1rio",
+      "default": true
+    },
+    "sort_order": {
+      "type": "number",
+      "description": "Ordem de exibi\u00e7\u00e3o"
+    }
+  },
+  "required": [
+    "question_text",
+    "question_type"
+  ]
+}
