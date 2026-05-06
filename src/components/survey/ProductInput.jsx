@@ -12,10 +12,10 @@ export default function ProductInput({ products, onChange }) {
 
   const addProduct = () => {
     const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!trimmed || !quantity) return;
     const alreadyExists = products.some((p) => p.name?.toLowerCase() === trimmed.toLowerCase());
     if (alreadyExists) return;
-    onChange([...products, { name: trimmed, quantity: quantity.trim() || null, frequency }]);
+    onChange([...products, { name: trimmed, quantity: quantity.trim(), frequency }]);
     setName("");
     setQuantity("");
     setFrequency("mensal");
@@ -34,43 +34,50 @@ export default function ProductInput({ products, onChange }) {
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-col gap-2">
-        <div className="flex gap-2">
+      <div className="flex flex-col gap-3">
+        <div>
+          <p className="text-xs font-medium text-muted-foreground mb-1">Nome do produto *</p>
           <Input
-            placeholder="Nome do produto..."
+            placeholder="Digite o nome do produto..."
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1"
+            className="w-full"
           />
+        </div>
+        <div className="flex gap-2 items-end">
+          <div className="w-36">
+            <p className="text-xs font-medium text-muted-foreground mb-1">Quantidade média *</p>
+            <Input
+              type="number"
+              min="1"
+              placeholder="Ex: 2"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
+          <div className="flex-1">
+            <p className="text-xs font-medium text-muted-foreground mb-1">Periodicidade *</p>
+            <Select value={frequency} onValueChange={setFrequency}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mensal">Por mês</SelectItem>
+                <SelectItem value="ocasional">Ocasional</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button
             type="button"
             onClick={addProduct}
             size="icon"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0"
+            disabled={!name.trim() || !quantity}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 mb-0.5"
           >
             <Plus className="w-4 h-4" />
           </Button>
-        </div>
-        <div className="flex gap-2">
-          <Input
-            type="number"
-            min="1"
-            placeholder="Qtd. média (ex: 2)"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="w-40"
-          />
-          <Select value={frequency} onValueChange={setFrequency}>
-            <SelectTrigger className="flex-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="mensal">Por mês</SelectItem>
-              <SelectItem value="ocasional">Ocasional</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
