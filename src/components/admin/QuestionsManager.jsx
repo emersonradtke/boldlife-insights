@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, GripVertical } from "lucide-react";
+import { Plus, Trash2, GripVertical, Pencil, Check, X } from "lucide-react";
 
 const QUESTION_TYPES = {
   text: "Texto curto",
@@ -21,6 +21,8 @@ export default function QuestionsManager() {
   const queryClient = useQueryClient();
   const [newQuestion, setNewQuestion] = useState({ question_text: "", question_type: "text", is_required: false });
   const [isAdding, setIsAdding] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editData, setEditData] = useState({});
 
   const { data: questions = [] } = useQuery({
     queryKey: ["custom-questions"],
@@ -119,35 +121,102 @@ export default function QuestionsManager() {
             Nenhuma pergunta adicionada ainda
           </p>
         ) : (
-          questions.map((q) => (
-            <div key={q.id} className="flex items-start gap-3 border rounded-xl p-4 bg-card">
-              <GripVertical className="w-4 h-4 text-muted-foreground mt-1 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm">{q.question_text}</p>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <Badge variant="outline" className="text-xs">{QUESTION_TYPES[q.question_type]}</Badge>
-                  {q.is_required && <Badge className="text-xs bg-destructive/10 text-destructive border-0">Obrigatória</Badge>}
-                </div>
+          questions.map((q) => {
+            const isEditing = editingId === q.id;
+            return (
+              <div key={q.id} className="border rounded-xl bg-card overflow-hidden">
+                {isEditing ? (
+                  <div className="p-4 space-y-3 bg-muted/30">
+                    <div>
+                      <Label>Texto da pergunta</Label>
+                      <Input
+                        className="mt-1"
+                        value={editData.question_text}
+                        onChange={(e) => setEditData((p) => ({ ...p, question_text: e.target.value }))}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label>Tipo de resposta</Label>
+                        <Select
+                          value={editData.question_type}
+                          onValueChange={(val) => setEditData((p) => ({ ...p, question_type: val }))}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(QUESTION_TYPES).map(([val, label]) => (
+                              <SelectItem key={val} value={val}>{label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-end gap-2 pb-0.5">
+                        <Switch
+                          checked={editData.is_required}
+                          onCheckedChange={(val) => setEditData((p) => ({ ...p, is_required: val }))}
+                        />
+                        <Label>Obrigatória</Label>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          updateMutation.mutate({ id: q.id, data: editData });
+                          setEditingId(null);
+                        }}
+                        disabled={!editData.question_text || updateMutation.isPending}
+                        className="gap-1.5"
+                      >
+                        <Check className="w-3.5 h-3.5" /> Salvar
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setEditingId(null)} className="gap-1.5">
+                        <X className="w-3.5 h-3.5" /> Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-start gap-3 p-4">
+                    <GripVertical className="w-4 h-4 text-muted-foreground mt-1 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{q.question_text}</p>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <Badge variant="outline" className="text-xs">{QUESTION_TYPES[q.question_type]}</Badge>
+                        {q.is_required && <Badge className="text-xs bg-destructive/10 text-destructive border-0">Obrigatória</Badge>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-1.5">
+                        <Switch
+                          checked={q.is_active}
+                          onCheckedChange={(val) => updateMutation.mutate({ id: q.id, data: { is_active: val } })}
+                        />
+                        <span className="text-xs text-muted-foreground">{q.is_active ? "Ativa" : "Inativa"}</span>
+                      </div>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="w-8 h-8 text-muted-foreground hover:text-primary"
+                        onClick={() => { setEditingId(q.id); setEditData({ question_text: q.question_text, question_type: q.question_type, is_required: !!q.is_required }); }}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="w-8 h-8 text-muted-foreground hover:text-destructive"
+                        onClick={() => deleteMutation.mutate(q.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <div className="flex items-center gap-1.5">
-                  <Switch
-                    checked={q.is_active}
-                    onCheckedChange={(val) => updateMutation.mutate({ id: q.id, data: { is_active: val } })}
-                  />
-                  <span className="text-xs text-muted-foreground">{q.is_active ? "Ativa" : "Inativa"}</span>
-                </div>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="w-8 h-8 text-muted-foreground hover:text-destructive"
-                  onClick={() => deleteMutation.mutate(q.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </CardContent>
     </Card>
