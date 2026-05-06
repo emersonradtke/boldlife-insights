@@ -16,7 +16,14 @@ import PasswordManager from "../components/admin/PasswordManager";
 import AdminLogin from "../components/admin/AdminLogin";
 
 export default function AdminDashboard() {
-  const [authenticated, setAuthenticated] = useState(false);
+  const [authenticated, setAuthenticated] = useState(
+    () => sessionStorage.getItem("boldlife_admin_auth") === "true"
+  );
+
+  const handleAuthSuccess = () => {
+    sessionStorage.setItem("boldlife_admin_auth", "true");
+    setAuthenticated(true);
+  };
 
   const { data: responses, isLoading } = useQuery({
     queryKey: ["survey-responses"],
@@ -25,7 +32,7 @@ export default function AdminDashboard() {
   });
 
   if (!authenticated) {
-    return <AdminLogin onSuccess={() => setAuthenticated(true)} />;
+    return <AdminLogin onSuccess={handleAuthSuccess} />;
   }
 
   if (isLoading) {
