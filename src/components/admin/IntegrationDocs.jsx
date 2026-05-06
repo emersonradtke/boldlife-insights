@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, Code2, LogIn, Database } from "lucide-react";
+import { Copy, Check, Code2, LogIn, Database, Eye, EyeOff, Key } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 
 function CopyButton({ text }) {
   const [copied, setCopied] = useState(false);
@@ -83,6 +84,21 @@ const SUBMIT_RESPONSE = JSON.stringify({
 
 export default function IntegrationDocs() {
   const [activeTab, setActiveTab] = useState("login");
+  const [secretKey, setSecretKey] = useState("");
+  const [showSecret, setShowSecret] = useState(false);
+  const [copiedSecret, setCopiedSecret] = useState(false);
+
+  useEffect(() => {
+    base44.functions.invoke("getSecretKey", {}).then((res) => {
+      setSecretKey(res.data?.secret_key || "");
+    }).catch(() => {});
+  }, []);
+
+  const handleCopySecret = () => {
+    navigator.clipboard.writeText(secretKey);
+    setCopiedSecret(true);
+    setTimeout(() => setCopiedSecret(false), 2000);
+  };
 
   return (
     <Card className="border-0 shadow-sm">
@@ -123,6 +139,36 @@ export default function IntegrationDocs() {
       </CardHeader>
 
       <CardContent className="space-y-5">
+        {/* Secret Key */}
+        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-2">
+          <div className="flex items-center gap-2 text-amber-800">
+            <Key className="w-4 h-4" />
+            <p className="text-sm font-semibold">Secret Key da Integração</p>
+          </div>
+          <p className="text-xs text-amber-700">
+            Use este valor no campo <code className="font-mono bg-amber-100 px-1 rounded">secret_key</code> de todas as requisições à API.
+          </p>
+          <div className="flex items-center gap-2 mt-2">
+            <code className="flex-1 bg-white border border-amber-200 rounded-lg px-3 py-2 text-sm font-mono text-amber-900 truncate">
+              {secretKey ? (showSecret ? secretKey : "•".repeat(Math.min(secretKey.length, 32))) : "Carregando..."}
+            </code>
+            <button
+              onClick={() => setShowSecret((v) => !v)}
+              className="p-2 rounded-lg border border-amber-200 bg-white hover:bg-amber-50 text-amber-700 transition-colors"
+              title={showSecret ? "Ocultar" : "Mostrar"}
+            >
+              {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={handleCopySecret}
+              className="p-2 rounded-lg border border-amber-200 bg-white hover:bg-amber-50 text-amber-700 transition-colors"
+              title="Copiar"
+            >
+              {copiedSecret ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
         {activeTab === "login" && (
           <>
             <div className="p-4 rounded-xl bg-primary/5 border border-primary/15 space-y-1">
