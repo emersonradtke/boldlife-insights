@@ -18,8 +18,11 @@ export default function ProductsChart({ responses }) {
   responses.forEach((r) => {
     const products = Array.isArray(r.desired_products) ? r.desired_products : [];
     products.forEach((product) => {
-      const key = product.trim().toLowerCase();
-      const display = product.trim();
+      // suporta tanto string (legado) quanto objeto {name, quantity, frequency}
+      const rawName = typeof product === "string" ? product : product?.name;
+      if (!rawName) return;
+      const key = rawName.trim().toLowerCase();
+      const display = rawName.trim();
       if (!productCounts[key]) productCounts[key] = { name: display, count: 0 };
       productCounts[key].count++;
     });

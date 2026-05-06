@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Loader2, Send, UserCheck, UserX } from "lucide-react";
 import SurveyHeader from "../components/survey/SurveyHeader";
 import BrandInput from "../components/survey/BrandInput";
+import ProductInput from "../components/survey/ProductInput";
 import RatingStars from "../components/survey/RatingStars";
 import DynamicQuestions from "../components/survey/DynamicQuestions";
 
@@ -266,10 +267,10 @@ export default function SurveyForm() {
                     Quais produtos gostaria de encontrar?
                   </Label>
                   <p className="text-xs text-muted-foreground mb-3">
-                    Digite o nome do produto e pressione Enter ou clique no +
+                    Informe o produto, a quantidade média e a periodicidade de consumo
                   </p>
-                  <BrandInput
-                    brands={formData.desired_products || []}
+                  <ProductInput
+                    products={formData.desired_products || []}
                     onChange={(products) => updateField("desired_products", products)}
                   />
                 </div>

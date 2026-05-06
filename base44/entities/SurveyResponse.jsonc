@@ -31,9 +31,24 @@
     },
     "desired_products": {
       "type": "array",
-      "description": "Produtos que gostaria de ver na plataforma",
+      "description": "Produtos que gostaria de ver na plataforma, com m\u00e9dia de consumo",
       "items": {
-        "type": "string"
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "mensal",
+              "ocasional"
+            ]
+          }
+        }
       }
     },
     "comments": {
