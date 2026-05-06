@@ -10,6 +10,7 @@ import ResponsesTable from "../components/admin/ResponsesTable";
 import CommentsPanel from "../components/admin/CommentsPanel";
 import QuestionsManager from "../components/admin/QuestionsManager";
 import ProductsChart from "../components/admin/ProductsChart";
+import IntegrationDocs from "../components/admin/IntegrationDocs";
 
 export default function AdminDashboard() {
   const { data: responses, isLoading } = useQuery({
@@ -67,6 +68,7 @@ export default function AdminDashboard() {
 
         <ResponsesTable responses={responses} />
         <QuestionsManager />
+        <IntegrationDocs />
       </div>
     </div>
   );
