@@ -343,7 +343,13 @@ export default function SurveyForm() {
           >
             <Button
               type="submit"
-              disabled={isSubmitting || !formData.is_associate || !formData.full_name || !formData.email}
+              disabled={
+                isSubmitting ||
+                !formData.full_name.trim() ||
+                !formData.email.trim() ||
+                !formData.is_associate ||
+                (formData.is_associate === "yes" && !formData.associate_code.trim())
+              }
               className="w-full h-14 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl"
             >
               {isSubmitting ? (
