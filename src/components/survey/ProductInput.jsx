@@ -45,6 +45,9 @@ export default function ProductInput({ products, onChange }) {
             className="w-full"
           />
         </div>
+        <div>
+          <p className="text-sm font-medium text-foreground mb-2">Quantidade média de consumo desse produto</p>
+        </div>
         <div className="flex gap-2 items-end">
           <div className="w-36">
             <p className="text-xs font-medium text-muted-foreground mb-1">Quantidade média *</p>
