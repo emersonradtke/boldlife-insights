@@ -1,0 +1,67 @@
+import React from "react";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { Loader2, ExternalLink, BarChart3 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import StatsCards from "../components/admin/StatsCards";
+import BrandsChart from "../components/admin/BrandsChart";
+import ResponsesTable from "../components/admin/ResponsesTable";
+import CommentsPanel from "../components/admin/CommentsPanel";
+
+export default function AdminDashboard() {
+  const { data: responses, isLoading } = useQuery({
+    queryKey: ["survey-responses"],
+    queryFn: () => base44.entities.SurveyResponse.list("-created_date", 500),
+    initialData: [],
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Top bar */}
+      <div className="h-1.5 bg-gradient-to-r from-secondary via-primary to-secondary" />
+
+      <div className="border-b bg-card">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center">
+              <span className="text-primary font-display font-bold text-lg">B</span>
+            </div>
+            <div>
+              <h1 className="font-bold text-lg text-foreground font-display">Bold Life</h1>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <BarChart3 className="w-3 h-3" />
+                Painel Administrativo
+              </p>
+            </div>
+          </div>
+          <Link to="/">
+            <Button variant="outline" size="sm" className="gap-2">
+              <ExternalLink className="w-3.5 h-3.5" />
+              Ver Formulário
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+        <StatsCards responses={responses} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <BrandsChart responses={responses} />
+          <CommentsPanel responses={responses} />
+        </div>
+
+        <ResponsesTable responses={responses} />
+      </div>
+    </div>
+  );
+}

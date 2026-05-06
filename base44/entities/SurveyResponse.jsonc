@@ -1,0 +1,50 @@
+{
+  "name": "SurveyResponse",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Nome completo do respondente"
+    },
+    "email": {
+      "type": "string",
+      "description": "E-mail do respondente"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Telefone do respondente"
+    },
+    "is_associate": {
+      "type": "boolean",
+      "description": "Se \u00e9 associado Bold Life"
+    },
+    "associate_code": {
+      "type": "string",
+      "description": "C\u00f3digo do associado"
+    },
+    "desired_brands": {
+      "type": "array",
+      "description": "Marcas que gostaria de ver na plataforma",
+      "items": {
+        "type": "string"
+      }
+    },
+    "desired_products": {
+      "type": "string",
+      "description": "Produtos que gostaria de ver na plataforma"
+    },
+    "comments": {
+      "type": "string",
+      "description": "Coment\u00e1rios e sugest\u00f5es adicionais"
+    },
+    "satisfaction_rating": {
+      "type": "number",
+      "description": "Nota de satisfa\u00e7\u00e3o de 1 a 5"
+    }
+  },
+  "required": [
+    "full_name",
+    "email",
+    "is_associate"
+  ]
+}

@@ -5,7 +5,9 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-// Add page imports here
+import SurveyForm from './pages/SurveyForm';
+import ThankYou from './pages/ThankYou';
+import AdminDashboard from './pages/AdminDashboard';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -33,7 +35,9 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
+      <Route path="/" element={<SurveyForm />} />
+      <Route path="/obrigado" element={<ThankYou />} />
+      <Route path="/admin" element={<AdminDashboard />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
