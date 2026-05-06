@@ -11,6 +11,8 @@ import CommentsPanel from "../components/admin/CommentsPanel";
 import QuestionsManager from "../components/admin/QuestionsManager";
 import ProductsChart from "../components/admin/ProductsChart";
 import IntegrationDocs from "../components/admin/IntegrationDocs";
+import ResetStatsDialog from "../components/admin/ResetStatsDialog";
+import PasswordManager from "../components/admin/PasswordManager";
 
 export default function AdminDashboard() {
   const { data: responses, isLoading } = useQuery({
@@ -47,12 +49,15 @@ export default function AdminDashboard() {
               </p>
             </div>
           </div>
-          <Link to="/">
-            <Button variant="outline" size="sm" className="gap-2">
-              <ExternalLink className="w-3.5 h-3.5" />
-              Ver Formulário
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <ResetStatsDialog responses={responses} />
+            <Link to="/">
+              <Button variant="outline" size="sm" className="gap-2">
+                <ExternalLink className="w-3.5 h-3.5" />
+                Ver Formulário
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -69,6 +74,7 @@ export default function AdminDashboard() {
         <ResponsesTable responses={responses} />
         <QuestionsManager />
         <IntegrationDocs />
+        <PasswordManager />
       </div>
     </div>
   );
