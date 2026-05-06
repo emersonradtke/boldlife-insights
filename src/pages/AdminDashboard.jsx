@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -13,13 +13,20 @@ import ProductsChart from "../components/admin/ProductsChart";
 import IntegrationDocs from "../components/admin/IntegrationDocs";
 import ResetStatsDialog from "../components/admin/ResetStatsDialog";
 import PasswordManager from "../components/admin/PasswordManager";
+import AdminLogin from "../components/admin/AdminLogin";
 
 export default function AdminDashboard() {
+  const [authenticated, setAuthenticated] = useState(false);
+
   const { data: responses, isLoading } = useQuery({
     queryKey: ["survey-responses"],
     queryFn: () => base44.entities.SurveyResponse.list("-created_date", 500),
     initialData: [],
   });
+
+  if (!authenticated) {
+    return <AdminLogin onSuccess={() => setAuthenticated(true)} />;
+  }
 
   if (isLoading) {
     return (
