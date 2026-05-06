@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,9 +13,18 @@ import SurveyHeader from "../components/survey/SurveyHeader";
 import BrandInput from "../components/survey/BrandInput";
 import RatingStars from "../components/survey/RatingStars";
 
+function decodeToken(token) {
+  try {
+    return JSON.parse(decodeURIComponent(escape(atob(token))));
+  } catch {
+    return null;
+  }
+}
+
 export default function SurveyForm() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [associateData, setAssociateData] = useState(null);
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -27,6 +36,26 @@ export default function SurveyForm() {
     comments: "",
     satisfaction_rating: 0,
   });
+
+  // Read token from URL on mount (external platform login)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      const data = decodeToken(token);
+      if (data && data.full_name && data.email) {
+        setAssociateData(data);
+        setFormData((prev) => ({
+          ...prev,
+          full_name: data.full_name || "",
+          email: data.email || "",
+          phone: data.phone || "",
+          is_associate: data.is_associate ? "yes" : "no",
+          associate_code: data.associate_code || "",
+        }));
+      }
+    }
+  }, []);
 
   const updateField = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -50,13 +79,15 @@ export default function SurveyForm() {
     visible: { opacity: 1, y: 0 },
   };
 
+  const isFromExternalPlatform = !!associateData;
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Decorative top bar */}
+      {/* Top gradient bar */}
       <div className="h-1.5 bg-gradient-to-r from-secondary via-primary to-secondary" />
 
       <div className="max-w-2xl mx-auto px-4 py-10 md:py-16">
-        <SurveyHeader />
+        <SurveyHeader associateData={associateData} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Personal Info */}
@@ -64,7 +95,7 @@ export default function SurveyForm() {
             <Card className="border-0 shadow-md bg-card">
               <CardContent className="p-6 space-y-5">
                 <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
                     <span className="text-primary font-bold text-sm">1</span>
                   </div>
                   Dados Pessoais
@@ -80,6 +111,7 @@ export default function SurveyForm() {
                       value={formData.full_name}
                       onChange={(e) => updateField("full_name", e.target.value)}
                       className="mt-1.5"
+                      readOnly={isFromExternalPlatform}
                     />
                   </div>
 
@@ -94,6 +126,7 @@ export default function SurveyForm() {
                         value={formData.email}
                         onChange={(e) => updateField("email", e.target.value)}
                         className="mt-1.5"
+                        readOnly={isFromExternalPlatform}
                       />
                     </div>
                     <div>
@@ -107,6 +140,13 @@ export default function SurveyForm() {
                       />
                     </div>
                   </div>
+
+                  {isFromExternalPlatform && (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+                      Dados preenchidos automaticamente via login Bold Life
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -117,7 +157,7 @@ export default function SurveyForm() {
             <Card className="border-0 shadow-md bg-card">
               <CardContent className="p-6 space-y-5">
                 <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
                     <span className="text-primary font-bold text-sm">2</span>
                   </div>
                   Vínculo Bold Life
@@ -127,9 +167,9 @@ export default function SurveyForm() {
                   <Label className="mb-3 block">Você é associado(a) Bold Life? *</Label>
                   <RadioGroup
                     value={formData.is_associate || ""}
-                    onValueChange={(val) => updateField("is_associate", val)}
+                    onValueChange={(val) => !isFromExternalPlatform && updateField("is_associate", val)}
                     required
-                    className="flex gap-4"
+                    className="flex flex-col sm:flex-row gap-3"
                   >
                     <label className="flex-1 cursor-pointer">
                       <div
@@ -139,7 +179,7 @@ export default function SurveyForm() {
                             : "border-border hover:border-primary/30"
                         }`}
                       >
-                        <RadioGroupItem value="yes" id="yes" />
+                        <RadioGroupItem value="yes" id="yes" disabled={isFromExternalPlatform} />
                         <UserCheck className="w-5 h-5 text-primary" />
                         <span className="font-medium">Sim, sou associado</span>
                       </div>
@@ -152,7 +192,7 @@ export default function SurveyForm() {
                             : "border-border hover:border-primary/30"
                         }`}
                       >
-                        <RadioGroupItem value="no" id="no" />
+                        <RadioGroupItem value="no" id="no" disabled={isFromExternalPlatform} />
                         <UserX className="w-5 h-5 text-muted-foreground" />
                         <span className="font-medium">Não sou associado</span>
                       </div>
@@ -175,6 +215,7 @@ export default function SurveyForm() {
                         value={formData.associate_code}
                         onChange={(e) => updateField("associate_code", e.target.value)}
                         className="mt-1.5"
+                        readOnly={isFromExternalPlatform}
                       />
                     </motion.div>
                   )}
@@ -188,7 +229,7 @@ export default function SurveyForm() {
             <Card className="border-0 shadow-md bg-card">
               <CardContent className="p-6 space-y-5">
                 <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
                     <span className="text-primary font-bold text-sm">3</span>
                   </div>
                   Marcas e Produtos
@@ -223,15 +264,15 @@ export default function SurveyForm() {
             </Card>
           </motion.div>
 
-          {/* Satisfaction & Comments */}
+          {/* Rating & Comments */}
           <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.5 }}>
             <Card className="border-0 shadow-md bg-card">
               <CardContent className="p-6 space-y-5">
                 <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
                     <span className="text-primary font-bold text-sm">4</span>
                   </div>
-                  Avaliação
+                  Avaliação e Opinião
                 </h3>
 
                 <div>
@@ -268,14 +309,14 @@ export default function SurveyForm() {
             <Button
               type="submit"
               disabled={isSubmitting || !formData.is_associate || !formData.full_name || !formData.email}
-              className="w-full h-14 text-lg font-semibold bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl"
+              className="w-full h-14 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl"
             >
               {isSubmitting ? (
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
               ) : (
                 <Send className="w-5 h-5 mr-2" />
               )}
-              {isSubmitting ? "Enviando..." : "Enviar Pesquisa"}
+              {isSubmitting ? "Enviando..." : "Enviar Pesquisa de Opinião"}
             </Button>
           </motion.div>
         </form>
@@ -284,7 +325,7 @@ export default function SurveyForm() {
         <div className="mt-10 text-center">
           <div className="w-12 h-0.5 bg-primary/30 mx-auto mb-4 rounded-full" />
           <p className="text-xs text-muted-foreground">
-            © 2026 Bold Life Ecosystem. Todos os direitos reservados.
+            © 2025 Bold Life Ecosystem. Todos os direitos reservados.
           </p>
         </div>
       </div>

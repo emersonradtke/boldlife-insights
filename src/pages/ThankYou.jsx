@@ -4,6 +4,8 @@ import { CheckCircle2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
+const LOGO_URL = "https://media.base44.com/images/public/69fb67ec22eeed7efb852e91/64630ae96_BOLDLIFE02-LOGO1.png";
+
 export default function ThankYou() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -24,11 +26,13 @@ export default function ThankYou() {
           <CheckCircle2 className="w-10 h-10 text-primary" />
         </motion.div>
 
-        <h1 className="text-3xl font-bold text-foreground font-display mb-3">
+        <img src={LOGO_URL} alt="Bold Life" className="h-10 object-contain mx-auto mb-6" />
+
+        <h1 className="text-3xl font-bold text-foreground mb-3">
           Obrigado!
         </h1>
         <p className="text-muted-foreground leading-relaxed mb-8">
-          Sua resposta foi registrada com sucesso. Agradecemos por contribuir
+          Sua opinião foi registrada com sucesso. Agradecemos por contribuir
           para a evolução do ecossistema Bold Life.
         </p>
 
@@ -41,16 +45,6 @@ export default function ThankYou() {
             Responder novamente
           </Button>
         </Link>
-
-        <div className="mt-12">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center">
-              <span className="text-primary font-display font-bold text-sm">B</span>
-            </div>
-            <span className="font-semibold text-secondary font-display">Bold Life</span>
-          </div>
-          <p className="text-xs text-muted-foreground">Ecosystem</p>
-        </div>
       </motion.div>
     </div>
   );

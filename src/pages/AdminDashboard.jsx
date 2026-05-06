@@ -32,11 +32,12 @@ export default function AdminDashboard() {
       <div className="border-b bg-card">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center">
-              <span className="text-primary font-display font-bold text-lg">B</span>
-            </div>
+            <img
+              src="https://media.base44.com/images/public/69fb67ec22eeed7efb852e91/64630ae96_BOLDLIFE02-LOGO1.png"
+              alt="Bold Life"
+              className="h-8 object-contain"
+            />
             <div>
-              <h1 className="font-bold text-lg text-foreground font-display">Bold Life</h1>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <BarChart3 className="w-3 h-3" />
                 Painel Administrativo
