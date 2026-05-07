@@ -8,6 +8,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import SurveyForm from './pages/SurveyForm';
 import ThankYou from './pages/ThankYou';
 import AdminDashboard from './pages/AdminDashboard';
+import MigrationGuide from './pages/MigrationGuide';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -41,6 +42,7 @@ const AuthenticatedApp = () => {
       <Route path="/" element={<SurveyForm />} />
       <Route path="/obrigado" element={<ThankYou />} />
       <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/migracao" element={<MigrationGuide />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
