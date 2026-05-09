@@ -12,6 +12,7 @@ import PasswordManager from "../components/admin/PasswordManager";
 import AdminLogin from "../components/admin/AdminLogin";
 import SurveyFormConfig from "../components/admin/SurveyFormConfig";
 import SurveyManager from "../components/admin/SurveyManager";
+import RestoreSurveyCard from "../components/admin/RestoreSurveyCard";
 
 export default function AdminDashboard() {
   const [authenticated, setAuthenticated] = useState(
@@ -76,6 +77,7 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
         <SurveyDashboard allResponses={responses} />
 
+        <RestoreSurveyCard />
         <SurveyManager />
         <SurveyFormConfig />
         <QuestionsManager />
