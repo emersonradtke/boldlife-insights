@@ -29,9 +29,46 @@ function CodeBlock({ code, lang = "js" }) {
 
 const SUPABASE_SCHEMA = `-- Execute no Supabase SQL Editor
 
+-- Tabela de pesquisas
+create table surveys (
+  id uuid default gen_random_uuid() primary key,
+  created_at timestamptz default now(),
+  title text not null,
+  description text,
+  is_visible boolean default true,
+  sort_order int default 0,
+  show_brands_section boolean default true,
+  show_rating_section boolean default true,
+  show_associate_code boolean default true,
+  require_associate_code boolean default false,
+  submit_button_text text,
+  thankyou_title text,
+  thankyou_message text,
+  label_full_name text,
+  label_email text,
+  label_phone text,
+  label_is_associate text,
+  label_associate_yes text,
+  label_associate_no text,
+  label_associate_code text,
+  placeholder_associate_code text,
+  label_brands text,
+  label_products text,
+  label_rating text,
+  label_comments text,
+  placeholder_comments text,
+  section1_title text,
+  section2_title text,
+  section3_title text,
+  section4_title text,
+  footer_text text
+);
+
+-- Tabela de respostas (com survey_id)
 create table survey_responses (
   id uuid default gen_random_uuid() primary key,
   created_at timestamptz default now(),
+  survey_id uuid references surveys(id) on delete set null,
   full_name text not null,
   email text not null,
   phone text,
@@ -44,27 +81,65 @@ create table survey_responses (
   custom_answers jsonb
 );
 
+-- Tabela de perguntas personalizadas (com survey_id)
 create table custom_questions (
   id uuid default gen_random_uuid() primary key,
   created_at timestamptz default now(),
+  survey_id uuid references surveys(id) on delete cascade,
   question_text text not null,
-  question_type text not null,
+  question_type text not null check (question_type in (
+    'text','textarea','multiple_choice','checkbox','dropdown',
+    'file_upload','linear_scale','choice_grid','date','time','rating','yesno'
+  )),
+  options text[],
+  scale_min int default 1,
+  scale_max int default 5,
+  scale_min_label text,
+  scale_max_label text,
+  grid_rows text[],
+  grid_columns text[],
   is_required boolean default false,
   is_active boolean default true,
   sort_order int default 0
 );
 
+-- Tabela de configurações globais do formulário
+create table form_config (
+  id uuid default gen_random_uuid() primary key,
+  created_at timestamptz default now(),
+  key text not null unique,
+  value text,
+  label text,
+  grp text check (grp in ('textos','campos','geral'))
+);
+
 -- Habilitar RLS (Row Level Security)
+alter table surveys enable row level security;
 alter table survey_responses enable row level security;
 alter table custom_questions enable row level security;
+alter table form_config enable row level security;
 
--- Política: qualquer um pode inserir (formulário público)
+-- Surveys: leitura pública, escrita apenas service role
+create policy "Public read surveys" on surveys for select using (true);
+create policy "Service role manages surveys" on surveys for all using (auth.role() = 'service_role');
+
+-- Respostas: qualquer um insere, só service role lê
 create policy "Anyone can insert survey" on survey_responses for insert with check (true);
--- Política: só service role lê (admin)
 create policy "Service role reads all" on survey_responses for select using (auth.role() = 'service_role');
--- Política: custom_questions são públicas para leitura
+create policy "Service role manages responses" on survey_responses for all using (auth.role() = 'service_role');
+
+-- Perguntas: leitura pública, escrita service role
 create policy "Public read questions" on custom_questions for select using (true);
-create policy "Service role manages questions" on custom_questions for all using (auth.role() = 'service_role');`;
+create policy "Service role manages questions" on custom_questions for all using (auth.role() = 'service_role');
+
+-- Config: leitura pública, escrita service role
+create policy "Public read config" on form_config for select using (true);
+create policy "Service role manages config" on form_config for all using (auth.role() = 'service_role');
+
+-- Índices para performance
+create index idx_responses_survey_id on survey_responses(survey_id);
+create index idx_questions_survey_id on custom_questions(survey_id);
+create index idx_surveys_sort_order on surveys(sort_order);`;
 
 const SUPABASE_CLIENT = `// lib/supabaseClient.js
 import { createClient } from '@supabase/supabase-js';
@@ -82,20 +157,45 @@ export const supabaseAdmin = createClient(
 
 const REPLACE_ENTITIES = `// ANTES (Base44):
 import { base44 } from "@/api/base44Client";
+
+// Listar pesquisas visíveis
+const surveys = await base44.entities.Survey.list("sort_order", 100);
+
+// Listar perguntas de uma pesquisa específica
 const questions = await base44.entities.CustomQuestion.list("sort_order", 100);
-await base44.entities.SurveyResponse.create({ ...formData });
+
+// Submeter resposta com survey_id
+await base44.entities.SurveyResponse.create({ ...formData, survey_id: activeSurvey.id });
 
 // DEPOIS (Supabase):
 import { supabase } from "@/lib/supabaseClient";
+
+// Listar pesquisas visíveis
+const { data: surveys } = await supabase
+  .from("surveys")
+  .select("*")
+  .eq("is_visible", true)
+  .order("sort_order");
+
+// Listar perguntas de uma pesquisa específica
 const { data: questions } = await supabase
   .from("custom_questions")
   .select("*")
   .eq("is_active", true)
+  .or(\`survey_id.eq.\${surveyId},survey_id.is.null\`)
   .order("sort_order");
 
+// Submeter resposta com survey_id
 const { data } = await supabase
   .from("survey_responses")
-  .insert({ ...formData });`;
+  .insert({ ...formData, survey_id: activeSurvey.id });
+
+// Filtrar respostas por pesquisa no dashboard
+const { data: responses } = await supabase
+  .from("survey_responses")
+  .select("*")
+  .eq("survey_id", surveyId)
+  .order("created_at", { ascending: false });`;
 
 const VERCEL_API_SUBMIT = `// api/submitSurvey.js (Vercel API Route)
 import { createClient } from '@supabase/supabase-js';
@@ -111,7 +211,14 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Use POST' });
 
-  const { secret_key, full_name, email, ...rest } = req.body;
+  const {
+    secret_key, full_name, email, phone,
+    is_associate, associate_code,
+    desired_brands, desired_products,
+    comments, satisfaction_rating,
+    custom_answers,
+    survey_id  // ← novo campo: ID da pesquisa respondida
+  } = req.body;
 
   if (secret_key !== process.env.SURVEY_SECRET_KEY)
     return res.status(401).json({ error: 'Chave inválida.' });
@@ -121,7 +228,14 @@ export default async function handler(req, res) {
 
   const { data, error } = await supabase
     .from('survey_responses')
-    .insert({ full_name, email, ...rest })
+    .insert({
+      survey_id: survey_id || null,
+      full_name, email, phone,
+      is_associate, associate_code,
+      desired_brands, desired_products,
+      comments, satisfaction_rating,
+      custom_answers
+    })
     .select()
     .single();
 
@@ -246,7 +360,7 @@ export default function MigrationGuide() {
                 <CodeBlock code={REPLACE_ENTITIES} />
               </div>
               <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-xs text-blue-800">
-                <strong>Arquivos a modificar:</strong> <code>pages/SurveyForm.jsx</code>, <code>pages/AdminDashboard.jsx</code>, <code>components/admin/QuestionsManager.jsx</code>, <code>components/admin/ResponsesTable.jsx</code>, <code>components/admin/ResetStatsDialog.jsx</code>
+                <strong>Arquivos a modificar:</strong> <code>pages/SurveyForm.jsx</code>, <code>pages/AdminDashboard.jsx</code>, <code>components/admin/SurveyManager.jsx</code>, <code>components/admin/SurveyDashboard.jsx</code>, <code>components/admin/QuestionsManager.jsx</code>, <code>components/admin/ResponsesTable.jsx</code>, <code>components/admin/ResetStatsDialog.jsx</code>, <code>components/admin/FormConfigManager.jsx</code>
               </div>
             </CardContent>
           </Card>
