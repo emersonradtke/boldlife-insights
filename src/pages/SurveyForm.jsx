@@ -141,11 +141,32 @@ export default function SurveyForm() {
             </div>
             <div>
               <Label>{getConfig("label_email") || "E-mail *"}</Label>
-              <Input className="mt-1" type="email" value={formData.email} onChange={(e) => set("email")(e.target.value)} required />
+              <Input
+                className="mt-1"
+                type="email"
+                value={formData.email}
+                onChange={(e) => set("email")(e.target.value)}
+                required
+                disabled={!formData.full_name.trim()}
+              />
             </div>
             <div>
               <Label>{getConfig("label_phone") || "Telefone"}</Label>
-              <Input className="mt-1" value={formData.phone} onChange={(e) => set("phone")(e.target.value)} />
+              <Input
+                className="mt-1"
+                value={formData.phone}
+                onChange={(e) => {
+                  // Phone mask: (99) 99999-9999
+                  let v = e.target.value.replace(/\D/g, "").slice(0, 11);
+                  if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+                  else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4,5})(\d{0,4})$/, "($1) $2-$3");
+                  else if (v.length > 2) v = v.replace(/^(\d{2})(\d+)$/, "($1) $2");
+                  else if (v.length > 0) v = v.replace(/^(\d+)$/, "($1");
+                  set("phone")(v);
+                }}
+                placeholder="(00) 00000-0000"
+                disabled={!formData.email.trim()}
+              />
             </div>
           </div>
 
