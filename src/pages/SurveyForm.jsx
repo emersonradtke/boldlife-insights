@@ -75,6 +75,7 @@ export default function SurveyForm() {
   });
 
   const [formData, setFormData] = useState(() => buildFormData(seedData));
+  const [currentSection, setCurrentSection] = useState(1);
 
   // Sempre que a URL mudar (novo survey_id ou novo prefill), reinicia o formulário
   useEffect(() => {
@@ -88,6 +89,7 @@ export default function SurveyForm() {
       associate_code: newAssociate.associate_code || "",
     } : null);
     setFormData(buildFormData(newSeed));
+    setCurrentSection(1);
   }, [location.search]);
 
   const [navBlocked, setNavBlocked] = useState(false);
@@ -125,6 +127,26 @@ export default function SurveyForm() {
     activeSurvey?.[surveyKey] || getConfig(configKey) || fallback;
 
   // Verifica se o formulário está completo o suficiente para navegar
+  function isSectionComplete(section) {
+    if (section === 1) {
+      return formData.full_name.trim() && formData.email.trim();
+    }
+    if (section === 2) {
+      if (formData.is_associate === null || formData.is_associate === undefined) return false;
+      if (formData.is_associate && requireAssociateCode && !formData.associate_code.trim()) return false;
+      return true;
+    }
+    return true;
+  }
+
+  function canProceedToNextSection() {
+    if (currentSection === 1) return isSectionComplete(1);
+    if (currentSection === 2) return isSectionComplete(2);
+    if (currentSection === 3) return true;
+    if (currentSection === 4) return true;
+    return true;
+  }
+
   function isFormComplete() {
     if (!formData.full_name.trim()) return false;
     if (!formData.email.trim()) return false;
@@ -249,38 +271,48 @@ export default function SurveyForm() {
           className="space-y-6"
         >
           {/* Seção 1 — Dados Pessoais */}
-          <div className="bg-card rounded-2xl border p-6 space-y-4">
-            <h3 className="font-semibold text-foreground">{lbl("section1_title", "section1_title", "Dados Pessoais")}</h3>
-            <div>
-              <Label>{lbl("label_full_name", "label_full_name", "Nome Completo *")}</Label>
-              <Input className="mt-1" value={formData.full_name} onChange={(e) => set("full_name")(e.target.value)} required />
-            </div>
+          <AnimatePresence>
+            {currentSection === 1 && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bg-card rounded-2xl border p-6 space-y-4">
+                <h3 className="font-semibold text-foreground">{lbl("section1_title", "section1_title", "Dados Pessoais")}</h3>
+                <div>
+                  <Label>{lbl("label_full_name", "label_full_name", "Nome Completo *")}</Label>
+                  <Input className="mt-1" value={formData.full_name} onChange={(e) => set("full_name")(e.target.value)} required />
+                </div>
 
-            <div>
-              <Label>{lbl("label_email", "label_email", "E-mail *")}</Label>
-              <Input className="mt-1" type="email" value={formData.email} onChange={(e) => set("email")(e.target.value)} required />
-            </div>
+                <div>
+                  <Label>{lbl("label_email", "label_email", "E-mail *")}</Label>
+                  <Input className="mt-1" type="email" value={formData.email} onChange={(e) => set("email")(e.target.value)} required />
+                </div>
 
-            <div>
-              <Label>{lbl("label_phone", "label_phone", "Telefone")}</Label>
-              <Input
-                className="mt-1"
-                value={formData.phone}
-                onChange={(e) => {
-                  let v = e.target.value.replace(/\D/g, "").slice(0, 11);
-                  if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
-                  else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4,5})(\d{0,4})$/, "($1) $2-$3");
-                  else if (v.length > 2) v = v.replace(/^(\d{2})(\d+)$/, "($1) $2");
-                  else if (v.length > 0) v = v.replace(/^(\d+)$/, "($1");
-                  set("phone")(v);
-                }}
-                placeholder="(00) 00000-0000"
-              />
-            </div>
-          </div>
+                <div>
+                  <Label>{lbl("label_phone", "label_phone", "Telefone")}</Label>
+                  <Input
+                    className="mt-1"
+                    value={formData.phone}
+                    onChange={(e) => {
+                      let v = e.target.value.replace(/\D/g, "").slice(0, 11);
+                      if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+                      else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4,5})(\d{0,4})$/, "($1) $2-$3");
+                      else if (v.length > 2) v = v.replace(/^(\d{2})(\d+)$/, "($1) $2");
+                      else if (v.length > 0) v = v.replace(/^(\d+)$/, "($1");
+                      set("phone")(v);
+                    }}
+                    placeholder="(00) 00000-0000"
+                  />
+                </div>
+
+                <Button type="button" onClick={() => setCurrentSection(2)} className="w-full gap-2" disabled={!isSectionComplete(1)}>
+                  Próximo <ChevronRight className="w-4 h-4" />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Seção 2 — Vínculo */}
-          <div className="bg-card rounded-2xl border p-6 space-y-4">
+          <AnimatePresence>
+            {currentSection === 2 && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bg-card rounded-2xl border p-6 space-y-4">
                 <h3 className="font-semibold text-foreground">{lbl("section2_title", "section2_title", "Vínculo Bold Life")}</h3>
                 <div>
                   <Label className="mb-2 block">{lbl("label_is_associate", "label_is_associate", "Você é associado(a) Bold Life? *")}</Label>
@@ -319,61 +351,129 @@ export default function SurveyForm() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-          </div>
+
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={() => setCurrentSection(1)} className="flex-1">
+                    <ChevronLeft className="w-4 h-4 mr-1" /> Anterior
+                  </Button>
+                  <Button type="button" onClick={() => setCurrentSection(showBrands ? 3 : showRating ? 4 : 5)} className="flex-1 gap-2" disabled={!isSectionComplete(2)}>
+                    Próximo <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Seção 3 — Marcas e Produtos */}
           {showBrands && (
-            <div className="bg-card rounded-2xl border p-6 space-y-4">
-                <h3 className="font-semibold text-foreground">{lbl("section3_title", "section3_title", "Marcas e Produtos")}</h3>
-                <div>
-                  <Label>{lbl("label_brands", "label_brands", "Quais marcas você gostaria de ver na plataforma?")}</Label>
-                  <BrandInput brands={formData.desired_brands} onChange={set("desired_brands")} />
-                </div>
-                <div>
-                  <Label>{lbl("label_products", "label_products", "Quais produtos gostaria de encontrar?")}</Label>
-                  <ProductInput products={formData.desired_products} onChange={set("desired_products")} />
-                </div>
-            </div>
+            <AnimatePresence>
+              {currentSection === 3 && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bg-card rounded-2xl border p-6 space-y-4">
+                  <h3 className="font-semibold text-foreground">{lbl("section3_title", "section3_title", "Marcas e Produtos")}</h3>
+                  <div>
+                    <Label>{lbl("label_brands", "label_brands", "Quais marcas você gostaria de ver na plataforma?")}</Label>
+                    <BrandInput brands={formData.desired_brands} onChange={set("desired_brands")} />
+                  </div>
+                  <div>
+                    <Label>{lbl("label_products", "label_products", "Quais produtos gostaria de encontrar?")}</Label>
+                    <ProductInput products={formData.desired_products} onChange={set("desired_products")} />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" onClick={() => setCurrentSection(2)} className="flex-1">
+                      <ChevronLeft className="w-4 h-4 mr-1" /> Anterior
+                    </Button>
+                    <Button type="button" onClick={() => setCurrentSection(showRating ? 4 : 5)} className="flex-1 gap-2">
+                      Próximo <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           )}
 
           {/* Seção 4 — Avaliação */}
           {showRating && (
-            <div className="bg-card rounded-2xl border p-6 space-y-4">
-                <h3 className="font-semibold text-foreground">{lbl("section4_title", "section4_title", "Avaliação e Opinião")}</h3>
-                <div>
-                  <Label className="mb-2 block">{lbl("label_rating", "label_rating", "Como você avalia o ecossistema Bold Life?")}</Label>
-                  <RatingStars rating={formData.satisfaction_rating} onChange={set("satisfaction_rating")} />
-                </div>
-                <div>
-                  <Label>{lbl("label_comments", "label_comments", "Comentários e Sugestões")}</Label>
-                  <Textarea
-                    className="mt-1 min-h-[100px]"
-                    placeholder={lbl("placeholder_comments", "placeholder_comments", "Compartilhe suas ideias...")}
-                    value={formData.comments}
-                    onChange={(e) => set("comments")(e.target.value)}
-                  />
-                </div>
-            </div>
+            <AnimatePresence>
+              {currentSection === 4 && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bg-card rounded-2xl border p-6 space-y-4">
+                  <h3 className="font-semibold text-foreground">{lbl("section4_title", "section4_title", "Avaliação e Opinião")}</h3>
+                  <div>
+                    <Label className="mb-2 block">{lbl("label_rating", "label_rating", "Como você avalia o ecossistema Bold Life?")}</Label>
+                    <RatingStars rating={formData.satisfaction_rating} onChange={set("satisfaction_rating")} />
+                  </div>
+                  <div>
+                    <Label>{lbl("label_comments", "label_comments", "Comentários e Sugestões")}</Label>
+                    <Textarea
+                      className="mt-1 min-h-[100px]"
+                      placeholder={lbl("placeholder_comments", "placeholder_comments", "Compartilhe suas ideias...")}
+                      value={formData.comments}
+                      onChange={(e) => set("comments")(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" onClick={() => setCurrentSection(showBrands ? 3 : 2)} className="flex-1">
+                      <ChevronLeft className="w-4 h-4 mr-1" /> Anterior
+                    </Button>
+                    <Button type="button" onClick={() => setCurrentSection(5)} className="flex-1 gap-2">
+                      Próximo <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           )}
 
           {/* Perguntas dinâmicas */}
-          {activeQuestions.length > 0 && (
-            <DynamicQuestions
-              questions={activeQuestions}
-              answers={formData.custom_answers}
-              onChange={(updated) => set("custom_answers")(updated)}
-            />
-          )}
+          <AnimatePresence>
+            {currentSection === 5 && activeQuestions.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
+                <DynamicQuestions
+                  questions={activeQuestions}
+                  answers={formData.custom_answers}
+                  onChange={(updated) => set("custom_answers")(updated)}
+                />
 
-          <Button
-            type="submit"
-            size="lg"
-            className="w-full gap-2"
-            disabled={submitMutation.isPending}
-          >
-            {submitMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-            {submitButtonText}
-          </Button>
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={() => setCurrentSection(showRating ? 4 : showBrands ? 3 : 2)} className="flex-1">
+                    <ChevronLeft className="w-4 h-4 mr-1" /> Anterior
+                  </Button>
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="flex-1 gap-2"
+                    disabled={submitMutation.isPending}
+                  >
+                    {submitMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                    {submitButtonText}
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Submit final se não tiver perguntas dinâmicas */}
+          <AnimatePresence>
+            {currentSection === 5 && activeQuestions.length === 0 && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={() => setCurrentSection(showRating ? 4 : showBrands ? 3 : 2)} className="flex-1">
+                    <ChevronLeft className="w-4 h-4 mr-1" /> Anterior
+                  </Button>
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="flex-1 gap-2"
+                    disabled={submitMutation.isPending}
+                  >
+                    {submitMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                    {submitButtonText}
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.form>
 
         <p className="text-center text-xs text-muted-foreground mt-8">

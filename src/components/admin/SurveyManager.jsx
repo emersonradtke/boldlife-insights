@@ -210,6 +210,13 @@ export default function SurveyManager() {
                     <Pencil className="w-4 h-4" />
                   </Button>
                   <ResetSurveyStatsButton surveyId={survey.id} surveyTitle={survey.title} />
+                  <DeleteSurveyDialog
+                    surveyId={survey.id}
+                    surveyTitle={survey.title}
+                    isOpen={deleteDialog.open && deleteDialog.surveyId === survey.id}
+                    onOpenChange={(open) => setDeleteDialog({ open, surveyId: open ? survey.id : null, surveyTitle: open ? survey.title : "" })}
+                    onSuccess={() => setDeleteDialog({ open: false, surveyId: null, surveyTitle: "" })}
+                  />
                 </div>
               </div>
             )}
