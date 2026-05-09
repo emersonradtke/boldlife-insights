@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Settings2, Save, CheckCircle2, ChevronDown } from "lucide-react";
+import { Settings2, Save, CheckCircle2 } from "lucide-react";
 
 const DEFAULTS = {
   section1_title: "Dados Pessoais",
@@ -82,22 +82,22 @@ export default function SurveyFormConfig() {
     queryFn: () => base44.entities.Survey.list("sort_order", 100),
   });
 
-  const visibleSurveys = surveys.filter((s) => s.is_visible !== false);
   const selectedSurvey = surveys.find((s) => s.id === selectedId) || null;
 
-  // Auto-select first
+  // Auto-select first survey
   useEffect(() => {
     if (!selectedId && surveys.length > 0) {
       setSelectedId(surveys[0].id);
     }
-  }, [surveys, selectedId]);
+  }, [surveys]);
 
-  // Populate form when survey changes
+  // Populate form whenever selected survey changes
   useEffect(() => {
-    if (!selectedSurvey) return;
+    const survey = surveys.find((s) => s.id === selectedId);
+    if (!survey) return;
     const initial = {};
     Object.keys(DEFAULTS).forEach((k) => {
-      initial[k] = selectedSurvey[k] || "";
+      initial[k] = survey[k] || "";
     });
     setValues(initial);
   }, [selectedId, surveys]);
@@ -132,20 +132,29 @@ export default function SurveyFormConfig() {
 
         {/* Survey selector */}
         {surveys.length > 0 && (
-          <div className="mt-4 flex gap-2 flex-wrap">
-            {surveys.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setSelectedId(s.id)}
-                className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all ${
-                  selectedId === s.id
-                    ? "border-primary bg-primary/5 text-primary"
-                    : "border-border text-muted-foreground hover:border-primary/30"
-                }`}
-              >
-                {s.title}
-              </button>
-            ))}
+          <div className="mt-4">
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Selecionar pesquisa para configurar</Label>
+            <div className="flex gap-2 flex-wrap">
+              {surveys.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => setSelectedId(s.id)}
+                  className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all ${
+                    selectedId === s.id
+                      ? "border-primary bg-primary/5 text-primary"
+                      : "border-border text-muted-foreground hover:border-primary/30"
+                  }`}
+                >
+                  {s.title}
+                </button>
+              ))}
+            </div>
+            {selectedSurvey && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Editando: <span className="font-semibold text-foreground">{selectedSurvey.title}</span>
+                {" — "}as configurações abaixo são exclusivas desta pesquisa.
+              </p>
+            )}
           </div>
         )}
       </CardHeader>
