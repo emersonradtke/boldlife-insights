@@ -210,15 +210,6 @@ export default function SurveyManager() {
                     <Pencil className="w-4 h-4" />
                   </Button>
                   <ResetSurveyStatsButton surveyId={survey.id} surveyTitle={survey.title} />
-                  <Button 
-                   size="sm"
-                   variant="outline"
-                   className="text-xs gap-1.5 text-muted-foreground hover:text-destructive hover:border-destructive"
-                   onClick={() => setDeleteDialog({ open: true, surveyId: survey.id, surveyTitle: survey.title })}
-                  >
-                   <Trash2 className="w-3.5 h-3.5" />
-                   Excluir
-                  </Button>
                 </div>
               </div>
             )}
