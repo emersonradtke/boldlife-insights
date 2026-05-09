@@ -132,7 +132,7 @@ export default function QuestionStats({ surveyId, responses }) {
   });
 
   const questions = allQuestions
-    .filter((q) => q.is_active !== false && (!q.survey_id || q.survey_id === surveyId))
+    .filter((q) => q.is_active === true && (q.survey_id === surveyId))
     .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
 
   if (questions.length === 0) return null;
