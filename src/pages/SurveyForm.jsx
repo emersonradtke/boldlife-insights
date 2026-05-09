@@ -230,7 +230,7 @@ export default function SurveyForm() {
               <h3 className="font-semibold text-foreground">{getConfig("section4_title") || "Avaliação e Opinião"}</h3>
               <div>
                 <Label className="mb-2 block">{getConfig("label_rating") || "Como você avalia o ecossistema Bold Life?"}</Label>
-                <RatingStars value={formData.satisfaction_rating} onChange={set("satisfaction_rating")} />
+                <RatingStars rating={formData.satisfaction_rating} onChange={set("satisfaction_rating")} />
               </div>
               <div>
                 <Label>{getConfig("label_comments") || "Comentários e Sugestões"}</Label>
