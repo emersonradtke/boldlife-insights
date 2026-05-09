@@ -14,6 +14,7 @@ import IntegrationDocs from "../components/admin/IntegrationDocs";
 import ResetStatsDialog from "../components/admin/ResetStatsDialog";
 import PasswordManager from "../components/admin/PasswordManager";
 import AdminLogin from "../components/admin/AdminLogin";
+import FormConfigManager from "../components/admin/FormConfigManager";
 
 export default function AdminDashboard() {
   const [authenticated, setAuthenticated] = useState(
@@ -86,6 +87,7 @@ export default function AdminDashboard() {
         <CommentsPanel responses={responses} />
 
         <ResponsesTable responses={responses} />
+        <FormConfigManager />
         <QuestionsManager />
         <IntegrationDocs />
         <PasswordManager />

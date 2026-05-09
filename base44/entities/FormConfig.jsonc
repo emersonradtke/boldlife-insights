@@ -1,0 +1,32 @@
+{
+  "name": "FormConfig",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Chave \u00fanica da configura\u00e7\u00e3o"
+    },
+    "value": {
+      "type": "string",
+      "description": "Valor da configura\u00e7\u00e3o"
+    },
+    "label": {
+      "type": "string",
+      "description": "R\u00f3tulo descritivo da configura\u00e7\u00e3o"
+    },
+    "group": {
+      "type": "string",
+      "description": "Grupo da configura\u00e7\u00e3o",
+      "enum": [
+        "textos",
+        "campos",
+        "geral"
+      ]
+    }
+  },
+  "required": [
+    "key",
+    "value",
+    "group"
+  ]
+}

@@ -15,6 +15,7 @@ import BrandInput from "../components/survey/BrandInput";
 import ProductInput from "../components/survey/ProductInput";
 import RatingStars from "../components/survey/RatingStars";
 import DynamicQuestions from "../components/survey/DynamicQuestions";
+import { useFormConfig } from "@/components/admin/FormConfigManager";
 
 function decodeToken(token) {
   try {
@@ -29,6 +30,7 @@ export default function SurveyForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [associateData, setAssociateData] = useState(null);
   const [dynamicAnswers, setDynamicAnswers] = useState({});
+  const { getConfig } = useFormConfig();
 
   const { data: customQuestions = [] } = useQuery({
     queryKey: ["custom-questions"],
@@ -104,12 +106,18 @@ export default function SurveyForm() {
 
   const isFromExternalPlatform = !!associateData;
 
+  // Configurações dinâmicas
+  const showBrandsSection = getConfig("show_brands_section") !== "false";
+  const showRatingSection = getConfig("show_rating_section") !== "false";
+  const showAssociateCode = getConfig("show_associate_code") !== "false";
+  const requireAssociateCode = getConfig("require_associate_code") === "true";
+
   // Lógica de habilitação progressiva
   const hasName = formData.full_name.trim().length > 0;
   const hasEmail = formData.email.trim().length > 0;
-  const hasPhone = hasEmail; // phone é opcional, mas habilita junto ao email
+  const hasPhone = hasEmail;
   const hasAssociate = !!formData.is_associate;
-  const hasAssociateCode = formData.is_associate !== "yes" || formData.associate_code.trim().length > 0;
+  const hasAssociateCode = !showAssociateCode || formData.is_associate !== "yes" || !requireAssociateCode || formData.associate_code.trim().length > 0;
   const hasBrandsSection = hasAssociate && hasAssociateCode;
   const hasRatingSection = hasBrandsSection;
   const hasDynamicSection = hasRatingSection;
@@ -131,12 +139,12 @@ export default function SurveyForm() {
                   <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
                     <span className="text-primary font-bold text-sm">1</span>
                   </div>
-                  Dados Pessoais
+                  {getConfig("section1_title")}
                 </h3>
 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="full_name">Nome Completo *</Label>
+                    <Label htmlFor="full_name">{getConfig("label_full_name")}</Label>
                     <Input
                       id="full_name"
                       required
@@ -150,7 +158,7 @@ export default function SurveyForm() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="email">E-mail *</Label>
+                      <Label htmlFor="email">{getConfig("label_email")}</Label>
                       <Input
                         id="email"
                         type="email"
@@ -164,7 +172,7 @@ export default function SurveyForm() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="phone">Telefone</Label>
+                      <Label htmlFor="phone">{getConfig("label_phone")}</Label>
                       <Input
                        id="phone"
                        placeholder="(00) 00000-0000"
@@ -197,11 +205,11 @@ export default function SurveyForm() {
                   <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
                     <span className="text-primary font-bold text-sm">2</span>
                   </div>
-                  Vínculo Bold Life
+                  {getConfig("section2_title")}
                 </h3>
 
                 <div>
-                  <Label className="mb-3 block">Você é associado(a) Bold Life? *</Label>
+                  <Label className="mb-3 block">{getConfig("label_is_associate")}</Label>
                   <RadioGroup
                     value={formData.is_associate || ""}
                     onValueChange={(val) => !isFromExternalPlatform && hasEmail && updateField("is_associate", val)}
@@ -218,7 +226,7 @@ export default function SurveyForm() {
                       >
                         <RadioGroupItem value="yes" id="yes" disabled={isFromExternalPlatform} />
                         <UserCheck className="w-5 h-5 text-primary" />
-                        <span className="font-medium">Sim, sou associado</span>
+                        <span className="font-medium">{getConfig("label_associate_yes")}</span>
                       </div>
                     </label>
                     <label className="flex-1 cursor-pointer">
@@ -231,24 +239,24 @@ export default function SurveyForm() {
                       >
                         <RadioGroupItem value="no" id="no" disabled={isFromExternalPlatform} />
                         <UserX className="w-5 h-5 text-muted-foreground" />
-                        <span className="font-medium">Não sou associado</span>
+                        <span className="font-medium">{getConfig("label_associate_no")}</span>
                       </div>
                     </label>
                   </RadioGroup>
                 </div>
 
                 <AnimatePresence>
-                  {formData.is_associate === "yes" && (
+                  {formData.is_associate === "yes" && showAssociateCode && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <Label htmlFor="associate_code">Código do Associado</Label>
+                      <Label htmlFor="associate_code">{getConfig("label_associate_code")}</Label>
                       <Input
                         id="associate_code"
-                        placeholder="Ex: BL-00000"
+                        placeholder={getConfig("placeholder_associate_code")}
                         value={formData.associate_code}
                         onChange={(e) => updateField("associate_code", e.target.value)}
                         className="mt-1.5"
@@ -263,7 +271,7 @@ export default function SurveyForm() {
           </motion.div>
 
           {/* Brands & Products */}
-          <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.4 }}
+          {showBrandsSection && <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.4 }}
             className={`transition-opacity duration-300 ${!hasBrandsSection ? "opacity-40 pointer-events-none" : ""}`}>
             <Card className="border-0 shadow-md bg-card">
               <CardContent className="p-6 space-y-5">
@@ -271,12 +279,12 @@ export default function SurveyForm() {
                   <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
                     <span className="text-primary font-bold text-sm">3</span>
                   </div>
-                  Marcas e Produtos
+                  {getConfig("section3_title")}
                 </h3>
 
                 <div>
                   <Label className="mb-2 block">
-                    Quais marcas você gostaria de ver na plataforma?
+                    {getConfig("label_brands")}
                   </Label>
                   <p className="text-xs text-muted-foreground mb-3">
                     Digite o nome da marca e pressione Enter ou clique no +
@@ -289,7 +297,7 @@ export default function SurveyForm() {
 
                 <div>
                   <Label className="mb-2 block">
-                    Quais produtos gostaria de encontrar?
+                    {getConfig("label_products")}
                   </Label>
                   <p className="text-xs text-muted-foreground mb-3">
                     Informe o produto, a quantidade média e a periodicidade de consumo
@@ -301,10 +309,10 @@ export default function SurveyForm() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </motion.div>}
 
           {/* Rating & Comments */}
-          <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.5 }}
+          {showRatingSection && <motion.div variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.5 }}
             className={`transition-opacity duration-300 ${!hasRatingSection ? "opacity-40 pointer-events-none" : ""}`}>
             <Card className="border-0 shadow-md bg-card">
               <CardContent className="p-6 space-y-5">
@@ -312,12 +320,12 @@ export default function SurveyForm() {
                   <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
                     <span className="text-primary font-bold text-sm">4</span>
                   </div>
-                  Avaliação e Opinião
+                  {getConfig("section4_title")}
                 </h3>
 
                 <div>
                   <Label className="mb-3 block">
-                    Como você avalia o ecossistema Bold Life?
+                    {getConfig("label_rating")}
                   </Label>
                   <RatingStars
                     rating={formData.satisfaction_rating}
@@ -326,10 +334,10 @@ export default function SurveyForm() {
                 </div>
 
                 <div>
-                  <Label htmlFor="comments">Comentários e Sugestões</Label>
+                  <Label htmlFor="comments">{getConfig("label_comments")}</Label>
                   <Textarea
                     id="comments"
-                    placeholder="Compartilhe suas ideias, sugestões ou feedbacks..."
+                    placeholder={getConfig("placeholder_comments")}
                     value={formData.comments}
                     onChange={(e) => updateField("comments", e.target.value)}
                     className="mt-1.5 min-h-[100px]"
@@ -337,7 +345,7 @@ export default function SurveyForm() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </motion.div>}
 
           {/* Dynamic Questions */}
           {customQuestions.filter((q) => q.is_active).length > 0 && (
@@ -384,7 +392,7 @@ export default function SurveyForm() {
               ) : (
                 <Send className="w-5 h-5 mr-2" />
               )}
-              {isSubmitting ? "Enviando..." : "Enviar Pesquisa de Opinião"}
+              {isSubmitting ? "Enviando..." : getConfig("submit_button_text")}
             </Button>
           </motion.div>
         </form>
@@ -393,7 +401,7 @@ export default function SurveyForm() {
         <div className="mt-10 text-center">
           <div className="w-12 h-0.5 bg-primary/30 mx-auto mb-4 rounded-full" />
           <p className="text-xs text-muted-foreground">
-            © 2025 Bold Life Ecosystem. Todos os direitos reservados.
+            {getConfig("footer_text")}
           </p>
         </div>
       </div>
