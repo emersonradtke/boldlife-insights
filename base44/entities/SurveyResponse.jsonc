@@ -2,6 +2,10 @@
   "name": "SurveyResponse",
   "type": "object",
   "properties": {
+    "survey_id": {
+      "type": "string",
+      "description": "ID da pesquisa respondida"
+    },
     "full_name": {
       "type": "string",
       "description": "Nome completo do respondente"
@@ -31,7 +35,7 @@
     },
     "desired_products": {
       "type": "array",
-      "description": "Produtos que gostaria de ver na plataforma, com m\u00e9dia de consumo",
+      "description": "Produtos que gostaria de ver na plataforma",
       "items": {
         "type": "object",
         "properties": {
@@ -61,7 +65,7 @@
     },
     "custom_answers": {
       "type": "object",
-      "description": "Respostas das perguntas personalizadas (chave: id da pergunta, valor: resposta)"
+      "description": "Respostas das perguntas personalizadas"
     }
   },
   "required": [

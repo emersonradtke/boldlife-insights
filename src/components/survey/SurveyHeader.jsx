@@ -2,11 +2,12 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useFormConfig } from "@/components/admin/FormConfigManager";
 
-export default function SurveyHeader({ associateData }) {
+export default function SurveyHeader({ associateData, surveyTitle, surveyDescription }) {
   const { getConfig } = useFormConfig();
   const logoUrl = getConfig("logo_url");
-  const title = getConfig("form_title");
-  const subtitle = getConfig("form_subtitle");
+  // Use survey-level title/description if provided, else fall back to global config
+  const title = surveyTitle || getConfig("form_title");
+  const subtitle = surveyDescription || getConfig("form_subtitle");
 
   return (
     <motion.div

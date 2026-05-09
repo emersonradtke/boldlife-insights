@@ -15,6 +15,7 @@ import ResetStatsDialog from "../components/admin/ResetStatsDialog";
 import PasswordManager from "../components/admin/PasswordManager";
 import AdminLogin from "../components/admin/AdminLogin";
 import FormConfigManager from "../components/admin/FormConfigManager";
+import SurveyManager from "../components/admin/SurveyManager";
 
 export default function AdminDashboard() {
   const [authenticated, setAuthenticated] = useState(
@@ -87,6 +88,7 @@ export default function AdminDashboard() {
         <CommentsPanel responses={responses} />
 
         <ResponsesTable responses={responses} />
+        <SurveyManager />
         <FormConfigManager />
         <QuestionsManager />
         <IntegrationDocs />
