@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +47,7 @@ function isFieldAnswered(value) {
 
 export default function SurveyForm() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { getConfig } = useFormConfig();
 
   const associateData = getAssociateDataFromUrl();
@@ -60,18 +61,34 @@ export default function SurveyForm() {
     associate_code: associateData.associate_code || "",
   } : null);
 
-  const [formData, setFormData] = useState({
-    full_name: seedData?.full_name || "",
-    email: seedData?.email || "",
-    phone: seedData?.phone || "",
-    is_associate: seedData ? seedData.is_associate : false,
-    associate_code: seedData?.associate_code || "",
+  const buildFormData = (seed) => ({
+    full_name: seed?.full_name || "",
+    email: seed?.email || "",
+    phone: seed?.phone || "",
+    is_associate: seed ? seed.is_associate : false,
+    associate_code: seed?.associate_code || "",
     desired_brands: [],
     desired_products: [],
     comments: "",
     satisfaction_rating: null,
     custom_answers: {},
   });
+
+  const [formData, setFormData] = useState(() => buildFormData(seedData));
+
+  // Sempre que a URL mudar (novo survey_id ou novo prefill), reinicia o formulário
+  useEffect(() => {
+    const newPrefill = getPrefillFromUrl();
+    const newAssociate = getAssociateDataFromUrl();
+    const newSeed = newPrefill || (newAssociate ? {
+      full_name: newAssociate.full_name || "",
+      email: newAssociate.email || "",
+      phone: newAssociate.phone || "",
+      is_associate: true,
+      associate_code: newAssociate.associate_code || "",
+    } : null);
+    setFormData(buildFormData(newSeed));
+  }, [location.search]);
 
   const [navBlocked, setNavBlocked] = useState(false);
 
