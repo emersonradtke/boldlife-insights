@@ -4,12 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Loader2, ExternalLink, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import StatsCards from "../components/admin/StatsCards";
-import BrandsChart from "../components/admin/BrandsChart";
-import ResponsesTable from "../components/admin/ResponsesTable";
-import CommentsPanel from "../components/admin/CommentsPanel";
+import SurveyDashboard from "../components/admin/SurveyDashboard";
 import QuestionsManager from "../components/admin/QuestionsManager";
-import ProductsChart from "../components/admin/ProductsChart";
 import IntegrationDocs from "../components/admin/IntegrationDocs";
 import ResetStatsDialog from "../components/admin/ResetStatsDialog";
 import PasswordManager from "../components/admin/PasswordManager";
@@ -78,16 +74,8 @@ export default function AdminDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-        <StatsCards responses={responses} />
+        <SurveyDashboard allResponses={responses} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <BrandsChart responses={responses} />
-          <ProductsChart responses={responses} />
-        </div>
-
-        <CommentsPanel responses={responses} />
-
-        <ResponsesTable responses={responses} />
         <SurveyManager />
         <SurveyFormConfig />
         <QuestionsManager />
