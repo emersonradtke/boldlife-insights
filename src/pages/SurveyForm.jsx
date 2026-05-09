@@ -194,7 +194,7 @@ export default function SurveyForm() {
               <h3 className="font-semibold text-foreground">{getConfig("section3_title") || "Marcas e Produtos"}</h3>
               <div>
                 <Label>{getConfig("label_brands") || "Quais marcas você gostaria de ver na plataforma?"}</Label>
-                <BrandInput value={formData.desired_brands} onChange={set("desired_brands")} />
+                <BrandInput brands={formData.desired_brands} onChange={set("desired_brands")} />
               </div>
               <div>
                 <Label>{getConfig("label_products") || "Quais produtos gostaria de encontrar?"}</Label>
