@@ -78,6 +78,10 @@ export default function SurveyForm() {
   const requireAssociateCode = activeSurvey ? !!activeSurvey.require_associate_code : getConfig("require_associate_code") === "true";
   const submitButtonText = activeSurvey?.submit_button_text || getConfig("submit_button_text") || "Enviar Pesquisa";
 
+  // Helper: read label from active survey, fallback to FormConfig, then to hardcoded default
+  const lbl = (surveyKey, configKey, fallback) =>
+    activeSurvey?.[surveyKey] || getConfig(configKey) || fallback;
+
   const submitMutation = useMutation({
     mutationFn: (data) => base44.entities.SurveyResponse.create(data),
     onSuccess: () => {
@@ -134,13 +138,13 @@ export default function SurveyForm() {
         >
           {/* Personal Info */}
           <div className="bg-card rounded-2xl border p-6 space-y-4">
-            <h3 className="font-semibold text-foreground">{getConfig("section1_title") || "Dados Pessoais"}</h3>
+            <h3 className="font-semibold text-foreground">{lbl("section1_title", "section1_title", "Dados Pessoais")}</h3>
             <div>
-              <Label>{getConfig("label_full_name") || "Nome Completo *"}</Label>
+              <Label>{lbl("label_full_name", "label_full_name", "Nome Completo *")}</Label>
               <Input className="mt-1" value={formData.full_name} onChange={(e) => set("full_name")(e.target.value)} required />
             </div>
             <div>
-              <Label>{getConfig("label_email") || "E-mail *"}</Label>
+              <Label>{lbl("label_email", "label_email", "E-mail *")}</Label>
               <Input
                 className="mt-1"
                 type="email"
@@ -151,12 +155,11 @@ export default function SurveyForm() {
               />
             </div>
             <div>
-              <Label>{getConfig("label_phone") || "Telefone"}</Label>
+              <Label>{lbl("label_phone", "label_phone", "Telefone")}</Label>
               <Input
                 className="mt-1"
                 value={formData.phone}
                 onChange={(e) => {
-                  // Phone mask: (99) 99999-9999
                   let v = e.target.value.replace(/\D/g, "").slice(0, 11);
                   if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
                   else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4,5})(\d{0,4})$/, "($1) $2-$3");
@@ -172,13 +175,13 @@ export default function SurveyForm() {
 
           {/* Associate */}
           <div className="bg-card rounded-2xl border p-6 space-y-4">
-            <h3 className="font-semibold text-foreground">{getConfig("section2_title") || "Vínculo Bold Life"}</h3>
+            <h3 className="font-semibold text-foreground">{lbl("section2_title", "section2_title", "Vínculo Bold Life")}</h3>
             <div>
-              <Label className="mb-2 block">{getConfig("label_is_associate") || "Você é associado(a) Bold Life? *"}</Label>
+              <Label className="mb-2 block">{lbl("label_is_associate", "label_is_associate", "Você é associado(a) Bold Life? *")}</Label>
               <div className="flex gap-3">
                 {[
-                  { val: true, label: getConfig("label_associate_yes") || "Sim, sou associado" },
-                  { val: false, label: getConfig("label_associate_no") || "Não sou associado" },
+                  { val: true, label: lbl("label_associate_yes", "label_associate_yes", "Sim, sou associado") },
+                  { val: false, label: lbl("label_associate_no", "label_associate_no", "Não sou associado") },
                 ].map(({ val, label }) => (
                   <button
                     key={String(val)}
@@ -197,10 +200,10 @@ export default function SurveyForm() {
             </div>
             {formData.is_associate && showAssociateCode && (
               <div>
-                <Label>{getConfig("label_associate_code") || "Código do Associado"}{requireAssociateCode ? " *" : ""}</Label>
+                <Label>{lbl("label_associate_code", "label_associate_code", "Código do Associado")}{requireAssociateCode ? " *" : ""}</Label>
                 <Input
                   className="mt-1"
-                  placeholder={getConfig("placeholder_associate_code") || "Ex: BL-00000"}
+                  placeholder={lbl("placeholder_associate_code", "placeholder_associate_code", "Ex: BL-00000")}
                   value={formData.associate_code}
                   onChange={(e) => set("associate_code")(e.target.value)}
                   required={requireAssociateCode}
@@ -212,13 +215,13 @@ export default function SurveyForm() {
           {/* Brands & Products */}
           {showBrands && (
             <div className="bg-card rounded-2xl border p-6 space-y-4">
-              <h3 className="font-semibold text-foreground">{getConfig("section3_title") || "Marcas e Produtos"}</h3>
+              <h3 className="font-semibold text-foreground">{lbl("section3_title", "section3_title", "Marcas e Produtos")}</h3>
               <div>
-                <Label>{getConfig("label_brands") || "Quais marcas você gostaria de ver na plataforma?"}</Label>
+                <Label>{lbl("label_brands", "label_brands", "Quais marcas você gostaria de ver na plataforma?")}</Label>
                 <BrandInput brands={formData.desired_brands} onChange={set("desired_brands")} />
               </div>
               <div>
-                <Label>{getConfig("label_products") || "Quais produtos gostaria de encontrar?"}</Label>
+                <Label>{lbl("label_products", "label_products", "Quais produtos gostaria de encontrar?")}</Label>
                 <ProductInput products={formData.desired_products} onChange={set("desired_products")} />
               </div>
             </div>
@@ -227,16 +230,16 @@ export default function SurveyForm() {
           {/* Rating */}
           {showRating && (
             <div className="bg-card rounded-2xl border p-6 space-y-4">
-              <h3 className="font-semibold text-foreground">{getConfig("section4_title") || "Avaliação e Opinião"}</h3>
+              <h3 className="font-semibold text-foreground">{lbl("section4_title", "section4_title", "Avaliação e Opinião")}</h3>
               <div>
-                <Label className="mb-2 block">{getConfig("label_rating") || "Como você avalia o ecossistema Bold Life?"}</Label>
+                <Label className="mb-2 block">{lbl("label_rating", "label_rating", "Como você avalia o ecossistema Bold Life?")}</Label>
                 <RatingStars rating={formData.satisfaction_rating} onChange={set("satisfaction_rating")} />
               </div>
               <div>
-                <Label>{getConfig("label_comments") || "Comentários e Sugestões"}</Label>
+                <Label>{lbl("label_comments", "label_comments", "Comentários e Sugestões")}</Label>
                 <Textarea
                   className="mt-1 min-h-[100px]"
-                  placeholder={getConfig("placeholder_comments") || "Compartilhe suas ideias..."}
+                  placeholder={lbl("placeholder_comments", "placeholder_comments", "Compartilhe suas ideias...")}
                   value={formData.comments}
                   onChange={(e) => set("comments")(e.target.value)}
                 />
@@ -269,7 +272,7 @@ export default function SurveyForm() {
         </motion.form>
 
         <p className="text-center text-xs text-muted-foreground mt-8">
-          {getConfig("footer_text") || "© 2025 Bold Life Ecosystem. Todos os direitos reservados."}
+          {lbl("footer_text", "footer_text", "© 2025 Bold Life Ecosystem. Todos os direitos reservados.")}
         </p>
       </div>
     </div>

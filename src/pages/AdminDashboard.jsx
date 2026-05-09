@@ -14,7 +14,7 @@ import IntegrationDocs from "../components/admin/IntegrationDocs";
 import ResetStatsDialog from "../components/admin/ResetStatsDialog";
 import PasswordManager from "../components/admin/PasswordManager";
 import AdminLogin from "../components/admin/AdminLogin";
-import FormConfigManager from "../components/admin/FormConfigManager";
+import SurveyFormConfig from "../components/admin/SurveyFormConfig";
 import SurveyManager from "../components/admin/SurveyManager";
 
 export default function AdminDashboard() {
@@ -89,7 +89,7 @@ export default function AdminDashboard() {
 
         <ResponsesTable responses={responses} />
         <SurveyManager />
-        <FormConfigManager />
+        <SurveyFormConfig />
         <QuestionsManager />
         <IntegrationDocs />
         <PasswordManager />

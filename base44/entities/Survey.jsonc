@@ -50,6 +50,78 @@
     "thankyou_message": {
       "type": "string",
       "description": "Mensagem da p\u00e1gina de agradecimento"
+    },
+    "label_full_name": {
+      "type": "string",
+      "description": "Label do campo Nome Completo"
+    },
+    "label_email": {
+      "type": "string",
+      "description": "Label do campo E-mail"
+    },
+    "label_phone": {
+      "type": "string",
+      "description": "Label do campo Telefone"
+    },
+    "label_is_associate": {
+      "type": "string",
+      "description": "Label da pergunta de associado"
+    },
+    "label_associate_yes": {
+      "type": "string",
+      "description": "Label op\u00e7\u00e3o Sim (associado)"
+    },
+    "label_associate_no": {
+      "type": "string",
+      "description": "Label op\u00e7\u00e3o N\u00e3o (associado)"
+    },
+    "label_associate_code": {
+      "type": "string",
+      "description": "Label do c\u00f3digo do associado"
+    },
+    "placeholder_associate_code": {
+      "type": "string",
+      "description": "Placeholder do c\u00f3digo do associado"
+    },
+    "label_brands": {
+      "type": "string",
+      "description": "Label das marcas desejadas"
+    },
+    "label_products": {
+      "type": "string",
+      "description": "Label dos produtos desejados"
+    },
+    "label_rating": {
+      "type": "string",
+      "description": "Label da avalia\u00e7\u00e3o"
+    },
+    "label_comments": {
+      "type": "string",
+      "description": "Label dos coment\u00e1rios"
+    },
+    "placeholder_comments": {
+      "type": "string",
+      "description": "Placeholder dos coment\u00e1rios"
+    },
+    "section1_title": {
+      "type": "string",
+      "description": "T\u00edtulo da se\u00e7\u00e3o Dados Pessoais"
+    },
+    "section2_title": {
+      "type": "string",
+      "description": "T\u00edtulo da se\u00e7\u00e3o V\u00ednculo"
+    },
+    "section3_title": {
+      "type": "string",
+      "description": "T\u00edtulo da se\u00e7\u00e3o Marcas e Produtos"
+    },
+    "section4_title": {
+      "type": "string",
+      "description": "T\u00edtulo da se\u00e7\u00e3o Avalia\u00e7\u00e3o"
+    },
+    "footer_text": {
+      "type": "string",
+      "description": "Texto do rodap\u00e9"
     }
   },
   "required": [
