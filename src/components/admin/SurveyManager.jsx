@@ -12,6 +12,7 @@ import {
   Plus, Trash2, Pencil, Check, X, GripVertical,
   ChevronUp, ChevronDown, ClipboardList, Eye, EyeOff
 } from "lucide-react";
+import ResetSurveyStatsButton from "./ResetSurveyStatsButton";
 
 const DEFAULT_SURVEY = {
   title: "",
@@ -209,6 +210,7 @@ export default function SurveyManager() {
                   <Button size="icon" variant="ghost" className="w-8 h-8" onClick={() => setEditingId(survey.id)}>
                     <Pencil className="w-4 h-4" />
                   </Button>
+                  <ResetSurveyStatsButton surveyId={survey.id} surveyTitle={survey.title} />
                   <Button size="icon" variant="ghost" className="w-8 h-8 text-muted-foreground hover:text-destructive"
                     onClick={() => deleteMutation.mutate(survey.id)}>
                     <Trash2 className="w-4 h-4" />
