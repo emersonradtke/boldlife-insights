@@ -58,17 +58,17 @@ export default function ResetSurveyStatsButton({ surveyId, surveyTitle }) {
     <>
       <Button
         size="sm"
-        variant="ghost"
-        className="w-8 h-8 text-muted-foreground hover:text-destructive"
+        variant="outline"
+        className="text-xs gap-1.5 text-muted-foreground hover:text-destructive hover:border-destructive"
         onClick={() => {
           setPassword("");
           setError("");
           setDone(false);
           setOpen(true);
         }}
-        title="Zerar estatísticas desta pesquisa"
       >
-        <Trash2 className="w-4 h-4" />
+        <Trash2 className="w-3.5 h-3.5" />
+        Zerar dados
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>

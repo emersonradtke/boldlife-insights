@@ -13,6 +13,7 @@ import {
   ChevronUp, ChevronDown, ClipboardList, Eye, EyeOff
 } from "lucide-react";
 import ResetSurveyStatsButton from "./ResetSurveyStatsButton";
+import DeleteSurveyDialog from "./DeleteSurveyDialog";
 
 const DEFAULT_SURVEY = {
   title: "",
@@ -90,6 +91,7 @@ export default function SurveyManager() {
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, surveyId: null, surveyTitle: "" });
 
   const { data: surveys = [] } = useQuery({
     queryKey: ["surveys"],
@@ -106,10 +108,7 @@ export default function SurveyManager() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["surveys"] }); setEditingId(null); },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Survey.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["surveys"] }),
-  });
+
 
   const moveOrder = (survey, direction) => {
     const sorted = [...surveys].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
@@ -211,15 +210,28 @@ export default function SurveyManager() {
                     <Pencil className="w-4 h-4" />
                   </Button>
                   <ResetSurveyStatsButton surveyId={survey.id} surveyTitle={survey.title} />
-                  <Button size="icon" variant="ghost" className="w-8 h-8 text-muted-foreground hover:text-destructive"
-                    onClick={() => deleteMutation.mutate(survey.id)}>
-                    <Trash2 className="w-4 h-4" />
+                  <Button 
+                   size="sm"
+                   variant="outline"
+                   className="text-xs gap-1.5 text-muted-foreground hover:text-destructive hover:border-destructive"
+                   onClick={() => setDeleteDialog({ open: true, surveyId: survey.id, surveyTitle: survey.title })}
+                  >
+                   <Trash2 className="w-3.5 h-3.5" />
+                   Excluir
                   </Button>
                 </div>
               </div>
             )}
           </div>
         ))}
+
+        <DeleteSurveyDialog
+          surveyId={deleteDialog.surveyId}
+          surveyTitle={deleteDialog.surveyTitle}
+          isOpen={deleteDialog.open}
+          onOpenChange={(open) => setDeleteDialog((p) => ({ ...p, open }))}
+          onSuccess={() => setDeleteDialog({ open: false, surveyId: null, surveyTitle: "" })}
+        />
       </CardContent>
     </Card>
   );
