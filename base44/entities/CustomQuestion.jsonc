@@ -2,6 +2,10 @@
   "name": "CustomQuestion",
   "type": "object",
   "properties": {
+    "survey_id": {
+      "type": "string",
+      "description": "ID da pesquisa \u00e0 qual a pergunta pertence (vazio = todas as pesquisas)"
+    },
     "question_text": {
       "type": "string",
       "description": "Texto da pergunta"

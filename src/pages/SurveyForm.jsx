@@ -69,7 +69,10 @@ export default function SurveyForm() {
     ? visibleSurveys.find((s) => s.id === urlSurveyId) || visibleSurveys[0]
     : visibleSurveys[0];
 
-  const activeQuestions = questions.filter((q) => q.is_active !== false);
+  // Perguntas desta pesquisa específica OU sem pesquisa definida (globais)
+  const activeQuestions = questions.filter(
+    (q) => q.is_active !== false && (!q.survey_id || q.survey_id === activeSurvey?.id)
+  );
 
   // Resolve config with survey overrides
   const showBrands = activeSurvey ? activeSurvey.show_brands_section !== false : getConfig("show_brands_section") !== "false";

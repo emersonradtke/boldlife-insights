@@ -19,21 +19,27 @@ const QUESTION_TYPES = {
 
 export default function QuestionsManager() {
   const queryClient = useQueryClient();
-  const [newQuestion, setNewQuestion] = useState({ question_text: "", question_type: "text", is_required: false });
+  const [newQuestion, setNewQuestion] = useState({ question_text: "", question_type: "text", is_required: false, survey_id: "" });
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
+  const [filterSurveyId, setFilterSurveyId] = useState("all");
 
   const { data: questions = [] } = useQuery({
     queryKey: ["custom-questions"],
     queryFn: () => base44.entities.CustomQuestion.list("sort_order", 100),
   });
 
+  const { data: surveys = [] } = useQuery({
+    queryKey: ["surveys"],
+    queryFn: () => base44.entities.Survey.list("sort_order", 100),
+  });
+
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.CustomQuestion.create({ ...data, is_active: true, sort_order: questions.length + 1 }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["custom-questions"] });
-      setNewQuestion({ question_text: "", question_type: "text", is_required: false });
+      setNewQuestion({ question_text: "", question_type: "text", is_required: false, survey_id: "" });
       setIsAdding(false);
     },
   });
@@ -48,6 +54,32 @@ export default function QuestionsManager() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["custom-questions"] }),
   });
 
+  const getSurveyName = (id) => {
+    if (!id) return "Todas as pesquisas";
+    return surveys.find((s) => s.id === id)?.title || "—";
+  };
+
+  const filteredQuestions = filterSurveyId === "all"
+    ? questions
+    : questions.filter((q) => q.survey_id === filterSurveyId);
+
+  const SurveySelect = ({ value, onChange }) => (
+    <div>
+      <Label>Pesquisa</Label>
+      <Select value={value || ""} onValueChange={onChange}>
+        <SelectTrigger className="mt-1">
+          <SelectValue placeholder="Selecionar pesquisa..." />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={null}>Todas as pesquisas</SelectItem>
+          {surveys.map((s) => (
+            <SelectItem key={s.id} value={s.id}>{s.title}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="pb-4">
@@ -61,7 +93,37 @@ export default function QuestionsManager() {
         <p className="text-sm text-muted-foreground">
           As perguntas ativas aparecem no formulário público após as seções padrão.
         </p>
+
+        {/* Filter by survey */}
+        {surveys.length > 0 && (
+          <div className="mt-3 flex gap-2 flex-wrap">
+            <button
+              onClick={() => setFilterSurveyId("all")}
+              className={`px-3 py-1 rounded-lg border text-xs font-medium transition-all ${
+                filterSurveyId === "all"
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-border text-muted-foreground hover:border-primary/30"
+              }`}
+            >
+              Todas
+            </button>
+            {surveys.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => setFilterSurveyId(s.id)}
+                className={`px-3 py-1 rounded-lg border text-xs font-medium transition-all ${
+                  filterSurveyId === s.id
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-border text-muted-foreground hover:border-primary/30"
+                }`}
+              >
+                {s.title}
+              </button>
+            ))}
+          </div>
+        )}
       </CardHeader>
+
       <CardContent className="space-y-3">
         {/* Add form */}
         {isAdding && (
@@ -75,7 +137,11 @@ export default function QuestionsManager() {
                 onChange={(e) => setNewQuestion((p) => ({ ...p, question_text: e.target.value }))}
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <SurveySelect
+                value={newQuestion.survey_id}
+                onChange={(val) => setNewQuestion((p) => ({ ...p, survey_id: val }))}
+              />
               <div>
                 <Label>Tipo de resposta</Label>
                 <Select
@@ -116,12 +182,12 @@ export default function QuestionsManager() {
         )}
 
         {/* List */}
-        {questions.length === 0 && !isAdding ? (
+        {filteredQuestions.length === 0 && !isAdding ? (
           <p className="text-center text-muted-foreground text-sm py-8">
-            Nenhuma pergunta adicionada ainda
+            Nenhuma pergunta encontrada
           </p>
         ) : (
-          questions.map((q) => {
+          filteredQuestions.map((q) => {
             const isEditing = editingId === q.id;
             return (
               <div key={q.id} className="border rounded-xl bg-card overflow-hidden">
@@ -135,7 +201,11 @@ export default function QuestionsManager() {
                         onChange={(e) => setEditData((p) => ({ ...p, question_text: e.target.value }))}
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <SurveySelect
+                        value={editData.survey_id}
+                        onChange={(val) => setEditData((p) => ({ ...p, survey_id: val }))}
+                      />
                       <div>
                         <Label>Tipo de resposta</Label>
                         <Select
@@ -182,9 +252,10 @@ export default function QuestionsManager() {
                     <GripVertical className="w-4 h-4 text-muted-foreground mt-1 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm">{q.question_text}</p>
-                      <div className="flex items-center gap-2 mt-1.5">
+                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                         <Badge variant="outline" className="text-xs">{QUESTION_TYPES[q.question_type]}</Badge>
                         {q.is_required && <Badge className="text-xs bg-destructive/10 text-destructive border-0">Obrigatória</Badge>}
+                        <Badge variant="outline" className="text-xs text-muted-foreground">{getSurveyName(q.survey_id)}</Badge>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
@@ -199,7 +270,10 @@ export default function QuestionsManager() {
                         size="icon"
                         variant="ghost"
                         className="w-8 h-8 text-muted-foreground hover:text-primary"
-                        onClick={() => { setEditingId(q.id); setEditData({ question_text: q.question_text, question_type: q.question_type, is_required: !!q.is_required }); }}
+                        onClick={() => {
+                          setEditingId(q.id);
+                          setEditData({ question_text: q.question_text, question_type: q.question_type, is_required: !!q.is_required, survey_id: q.survey_id || "" });
+                        }}
                       >
                         <Pencil className="w-4 h-4" />
                       </Button>
