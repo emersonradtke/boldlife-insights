@@ -29,10 +29,9 @@ export default function SurveyDashboard({ allResponses }) {
       ? allResponses
       : allResponses.filter((r) => r.survey_id === activeTab);
 
-  const surveyName =
-    activeTab === "all"
-      ? "Todas as Pesquisas"
-      : visibleSurveys.find((s) => s.id === activeTab)?.title || "Pesquisa";
+  const activeSurvey = visibleSurveys.find((s) => s.id === activeTab) || null;
+  const surveyName = activeTab === "all" ? "Todas as Pesquisas" : activeSurvey?.title || "Pesquisa";
+  const showBrandsCharts = activeTab === "all" || activeSurvey?.show_brands_section !== false;
 
   return (
     <div className="space-y-6">
@@ -86,11 +85,13 @@ export default function SurveyDashboard({ allResponses }) {
       {/* Stats */}
       <StatsCards responses={filteredResponses} />
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BrandsChart responses={filteredResponses} />
-        <ProductsChart responses={filteredResponses} />
-      </div>
+      {/* Charts — só para pesquisas com seção de marcas ativa */}
+      {showBrandsCharts && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <BrandsChart responses={filteredResponses} />
+          <ProductsChart responses={filteredResponses} />
+        </div>
+      )}
 
       {/* Per-question stats (only when a specific survey is selected) */}
       {activeTab !== "all" && (
