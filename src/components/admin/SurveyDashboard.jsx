@@ -9,6 +9,7 @@ import BrandsChart from "./BrandsChart";
 import ProductsChart from "./ProductsChart";
 import CommentsPanel from "./CommentsPanel";
 import ResponsesTable from "./ResponsesTable";
+import QuestionStats from "./QuestionStats";
 
 export default function SurveyDashboard({ allResponses }) {
   const { data: surveys = [] } = useQuery({
@@ -90,6 +91,11 @@ export default function SurveyDashboard({ allResponses }) {
         <BrandsChart responses={filteredResponses} />
         <ProductsChart responses={filteredResponses} />
       </div>
+
+      {/* Per-question stats (only when a specific survey is selected) */}
+      {activeTab !== "all" && (
+        <QuestionStats surveyId={activeTab} responses={filteredResponses} />
+      )}
 
       {/* Comments */}
       <CommentsPanel responses={filteredResponses} />
