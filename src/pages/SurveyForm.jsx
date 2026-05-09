@@ -164,14 +164,9 @@ export default function SurveyForm() {
 
   const set = (field) => (val) => setFormData((p) => ({ ...p, [field]: val }));
 
-  // ── Campos obrigatórios "em cadeia" — cada seção só aparece após a anterior estar preenchida ──
-  const hasName = formData.full_name.trim().length > 0;
-  const hasEmail = hasName && formData.email.trim().length > 0;
-  const hasAssociate = hasEmail && formData.is_associate !== false || (hasEmail && formData.is_associate === false);
-  const hasAssociateAnswered = hasEmail && (formData.is_associate === true || formData.is_associate === false);
-  const hasAssociateCode = !requireAssociateCode || !formData.is_associate || formData.associate_code.trim().length > 0;
-  const sectionPersonalDone = hasName && hasEmail;
-  const sectionAssociateDone = hasAssociateAnswered && hasAssociateCode;
+  // Seções sempre visíveis, mas botão/submit só aparece após obrigatórios preenchidos
+  const sectionPersonalDone = true;
+  const sectionAssociateDone = true;
 
   return (
     <div className="min-h-screen bg-background">
@@ -244,41 +239,31 @@ export default function SurveyForm() {
               <Input className="mt-1" value={formData.full_name} onChange={(e) => set("full_name")(e.target.value)} required />
             </div>
 
-            <AnimatePresence>
-              {hasName && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                  <Label>{lbl("label_email", "label_email", "E-mail *")}</Label>
-                  <Input className="mt-1" type="email" value={formData.email} onChange={(e) => set("email")(e.target.value)} required />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div>
+              <Label>{lbl("label_email", "label_email", "E-mail *")}</Label>
+              <Input className="mt-1" type="email" value={formData.email} onChange={(e) => set("email")(e.target.value)} required />
+            </div>
 
-            <AnimatePresence>
-              {hasEmail && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                  <Label>{lbl("label_phone", "label_phone", "Telefone")}</Label>
-                  <Input
-                    className="mt-1"
-                    value={formData.phone}
-                    onChange={(e) => {
-                      let v = e.target.value.replace(/\D/g, "").slice(0, 11);
-                      if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
-                      else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4,5})(\d{0,4})$/, "($1) $2-$3");
-                      else if (v.length > 2) v = v.replace(/^(\d{2})(\d+)$/, "($1) $2");
-                      else if (v.length > 0) v = v.replace(/^(\d+)$/, "($1");
-                      set("phone")(v);
-                    }}
-                    placeholder="(00) 00000-0000"
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div>
+              <Label>{lbl("label_phone", "label_phone", "Telefone")}</Label>
+              <Input
+                className="mt-1"
+                value={formData.phone}
+                onChange={(e) => {
+                  let v = e.target.value.replace(/\D/g, "").slice(0, 11);
+                  if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+                  else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4,5})(\d{0,4})$/, "($1) $2-$3");
+                  else if (v.length > 2) v = v.replace(/^(\d{2})(\d+)$/, "($1) $2");
+                  else if (v.length > 0) v = v.replace(/^(\d+)$/, "($1");
+                  set("phone")(v);
+                }}
+                placeholder="(00) 00000-0000"
+              />
+            </div>
           </div>
 
-          {/* Seção 2 — Vínculo (só aparece após nome+email) */}
-          <AnimatePresence>
-            {sectionPersonalDone && (
-              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="bg-card rounded-2xl border p-6 space-y-4">
+          {/* Seção 2 — Vínculo */}
+          <div className="bg-card rounded-2xl border p-6 space-y-4">
                 <h3 className="font-semibold text-foreground">{lbl("section2_title", "section2_title", "Vínculo Bold Life")}</h3>
                 <div>
                   <Label className="mb-2 block">{lbl("label_is_associate", "label_is_associate", "Você é associado(a) Bold Life? *")}</Label>
@@ -317,14 +302,11 @@ export default function SurveyForm() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          </div>
 
-          {/* Seção 3 — Marcas e Produtos (só após vínculo respondido) */}
-          <AnimatePresence>
-            {sectionPersonalDone && sectionAssociateDone && showBrands && (
-              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="bg-card rounded-2xl border p-6 space-y-4">
+          {/* Seção 3 — Marcas e Produtos */}
+          {showBrands && (
+            <div className="bg-card rounded-2xl border p-6 space-y-4">
                 <h3 className="font-semibold text-foreground">{lbl("section3_title", "section3_title", "Marcas e Produtos")}</h3>
                 <div>
                   <Label>{lbl("label_brands", "label_brands", "Quais marcas você gostaria de ver na plataforma?")}</Label>
@@ -334,14 +316,12 @@ export default function SurveyForm() {
                   <Label>{lbl("label_products", "label_products", "Quais produtos gostaria de encontrar?")}</Label>
                   <ProductInput products={formData.desired_products} onChange={set("desired_products")} />
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+            </div>
+          )}
 
-          {/* Seção 4 — Avaliação (só após vínculo respondido) */}
-          <AnimatePresence>
-            {sectionPersonalDone && sectionAssociateDone && showRating && (
-              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="bg-card rounded-2xl border p-6 space-y-4">
+          {/* Seção 4 — Avaliação */}
+          {showRating && (
+            <div className="bg-card rounded-2xl border p-6 space-y-4">
                 <h3 className="font-semibold text-foreground">{lbl("section4_title", "section4_title", "Avaliação e Opinião")}</h3>
                 <div>
                   <Label className="mb-2 block">{lbl("label_rating", "label_rating", "Como você avalia o ecossistema Bold Life?")}</Label>
@@ -356,39 +336,27 @@ export default function SurveyForm() {
                     onChange={(e) => set("comments")(e.target.value)}
                   />
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+            </div>
+          )}
 
-          {/* Perguntas dinâmicas — progressivas: só aparece após as seções base */}
-          <AnimatePresence>
-            {sectionPersonalDone && sectionAssociateDone && activeQuestions.length > 0 && (
-              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <DynamicQuestions
-                  questions={activeQuestions}
-                  answers={formData.custom_answers}
-                  onChange={(updated) => set("custom_answers")(updated)}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Perguntas dinâmicas */}
+          {activeQuestions.length > 0 && (
+            <DynamicQuestions
+              questions={activeQuestions}
+              answers={formData.custom_answers}
+              onChange={(updated) => set("custom_answers")(updated)}
+            />
+          )}
 
-          {/* Botão enviar — só após seções obrigatórias preenchidas */}
-          <AnimatePresence>
-            {sectionPersonalDone && sectionAssociateDone && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full gap-2"
-                  disabled={submitMutation.isPending}
-                >
-                  {submitMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                  {submitButtonText}
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full gap-2"
+            disabled={submitMutation.isPending}
+          >
+            {submitMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+            {submitButtonText}
+          </Button>
         </motion.form>
 
         <p className="text-center text-xs text-muted-foreground mt-8">

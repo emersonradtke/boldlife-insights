@@ -195,29 +195,15 @@ export default function DynamicQuestions({ questions, answers, onChange }) {
 
   const handleChange = (id, val) => onChange({ ...answers, [id]: val });
 
-  // Determina quantas perguntas estão visíveis com base nas respostas progressivas
-  // Uma pergunta só aparece se a anterior foi respondida
-  let visibleCount = 0;
-  for (let i = 0; i < active.length; i++) {
-    visibleCount++;
-    if (i === active.length - 1) break;
-    const current = active[i];
-    const answered = isAnswered(answers[current.id]);
-    if (!answered) break;
-  }
-  const visible = active.slice(0, visibleCount);
-
   return (
     <div className="bg-card rounded-2xl border p-6 space-y-5">
       <h3 className="font-semibold text-foreground">Perguntas adicionais</h3>
-      <AnimatePresence initial={false}>
-      {visible.map((q) => (
+      {active.map((q, i) => (
         <motion.div
           key={q.id}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.3, delay: i * 0.05 }}
           className="space-y-2"
         >
           <Label>
@@ -275,7 +261,6 @@ export default function DynamicQuestions({ questions, answers, onChange }) {
           )}
         </motion.div>
       ))}
-      </AnimatePresence>
     </div>
   );
 }
