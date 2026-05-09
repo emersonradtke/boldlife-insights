@@ -198,7 +198,7 @@ export default function SurveyForm() {
               </div>
               <div>
                 <Label>{getConfig("label_products") || "Quais produtos gostaria de encontrar?"}</Label>
-                <ProductInput value={formData.desired_products} onChange={set("desired_products")} />
+                <ProductInput products={formData.desired_products} onChange={set("desired_products")} />
               </div>
             </div>
           )}
