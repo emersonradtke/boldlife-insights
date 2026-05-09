@@ -258,7 +258,14 @@ export default function SurveyForm() {
 
             <div>
               <Label>{lbl("label_email", "label_email", "E-mail *")}</Label>
-              <Input className="mt-1" type="email" value={formData.email} onChange={(e) => set("email")(e.target.value)} required />
+              <Input 
+                className="mt-1" 
+                type="email" 
+                value={formData.email} 
+                onChange={(e) => set("email")(e.target.value)} 
+                disabled={!formData.full_name.trim()}
+                required 
+              />
             </div>
 
             <div>
@@ -275,6 +282,7 @@ export default function SurveyForm() {
                   set("phone")(v);
                 }}
                 placeholder="(00) 00000-0000"
+                disabled={!formData.email.trim()}
               />
             </div>
           </div>
