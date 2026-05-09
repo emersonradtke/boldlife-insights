@@ -1,9 +1,17 @@
 import React from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+function isAnswered(value) {
+  if (value === null || value === undefined || value === "") return false;
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === "object") return Object.keys(value).length > 0;
+  return true;
+}
 
 function RatingInput({ value, onChange }) {
   return (
@@ -187,11 +195,31 @@ export default function DynamicQuestions({ questions, answers, onChange }) {
 
   const handleChange = (id, val) => onChange({ ...answers, [id]: val });
 
+  // Determina quantas perguntas estão visíveis com base nas respostas progressivas
+  // Uma pergunta só aparece se a anterior foi respondida
+  let visibleCount = 0;
+  for (let i = 0; i < active.length; i++) {
+    visibleCount++;
+    if (i === active.length - 1) break;
+    const current = active[i];
+    const answered = isAnswered(answers[current.id]);
+    if (!answered) break;
+  }
+  const visible = active.slice(0, visibleCount);
+
   return (
     <div className="bg-card rounded-2xl border p-6 space-y-5">
       <h3 className="font-semibold text-foreground">Perguntas adicionais</h3>
-      {active.map((q) => (
-        <div key={q.id} className="space-y-2">
+      <AnimatePresence initial={false}>
+      {visible.map((q) => (
+        <motion.div
+          key={q.id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="space-y-2"
+        >
           <Label>
             {q.question_text}
             {q.is_required && <span className="text-destructive ml-1">*</span>}
@@ -245,8 +273,9 @@ export default function DynamicQuestions({ questions, answers, onChange }) {
           {q.question_type === "time" && (
             <Input type="time" required={q.is_required} value={answers[q.id] || ""} onChange={(e) => handleChange(q.id, e.target.value)} className="w-auto" />
           )}
-        </div>
+        </motion.div>
       ))}
+      </AnimatePresence>
     </div>
   );
 }
