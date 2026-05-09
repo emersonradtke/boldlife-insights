@@ -31,7 +31,8 @@ export default function SurveyDashboard({ allResponses }) {
 
   const activeSurvey = visibleSurveys.find((s) => s.id === activeTab) || null;
   const surveyName = activeTab === "all" ? "Todas as Pesquisas" : activeSurvey?.title || "Pesquisa";
-  const showBrandsCharts = activeTab === "all" || activeSurvey?.show_brands_section !== false;
+  // Mostra gráficos de marcas: na aba geral sempre, ou quando a pesquisa selecionada tem show_brands_section = true
+  const showBrandsCharts = activeTab === "all" || activeSurvey?.show_brands_section === true;
 
   return (
     <div className="space-y-6">
