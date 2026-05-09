@@ -15,10 +15,57 @@
       "enum": [
         "text",
         "textarea",
+        "multiple_choice",
+        "checkbox",
+        "dropdown",
+        "file_upload",
+        "linear_scale",
+        "choice_grid",
+        "date",
+        "time",
         "rating",
         "yesno"
       ],
       "description": "Tipo de resposta esperada"
+    },
+    "options": {
+      "type": "array",
+      "description": "Op\u00e7\u00f5es para m\u00faltipla escolha, caixas de sele\u00e7\u00e3o ou lista suspensa",
+      "items": {
+        "type": "string"
+      }
+    },
+    "scale_min": {
+      "type": "number",
+      "description": "Valor m\u00ednimo da escala linear",
+      "default": 1
+    },
+    "scale_max": {
+      "type": "number",
+      "description": "Valor m\u00e1ximo da escala linear",
+      "default": 5
+    },
+    "scale_min_label": {
+      "type": "string",
+      "description": "Label do valor m\u00ednimo da escala"
+    },
+    "scale_max_label": {
+      "type": "string",
+      "description": "Label do valor m\u00e1ximo da escala"
+    },
+    "grid_rows": {
+      "type": "array",
+      "description": "Linhas da grade de m\u00faltipla escolha",
+      "items": {
+        "type": "string"
+      }
+    },
+    "grid_columns": {
+      "type": "array",
+      "description": "Colunas da grade de m\u00faltipla escolha",
+      "items": {
+        "type": "string"
+      }
     },
     "is_required": {
       "type": "boolean",

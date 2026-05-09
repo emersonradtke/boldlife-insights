@@ -255,7 +255,7 @@ export default function SurveyForm() {
             <DynamicQuestions
               questions={activeQuestions}
               answers={formData.custom_answers}
-              onChange={set("custom_answers")}
+              onChange={(updated) => set("custom_answers")(updated)}
             />
           )}
 

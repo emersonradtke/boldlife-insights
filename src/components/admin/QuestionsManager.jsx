@@ -3,26 +3,29 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, GripVertical, Pencil, Check, X } from "lucide-react";
+import { Plus, Trash2, GripVertical, Pencil } from "lucide-react";
+import QuestionForm, { QUESTION_TYPES } from "./QuestionForm";
 
-const QUESTION_TYPES = {
-  text: "Texto curto",
-  textarea: "Texto longo",
-  rating: "Avaliação (estrelas)",
-  yesno: "Sim / Não",
+const DEFAULT_NEW = {
+  question_text: "",
+  question_type: "text",
+  is_required: false,
+  survey_id: "",
+  options: [""],
+  scale_min: 1,
+  scale_max: 5,
+  scale_min_label: "",
+  scale_max_label: "",
+  grid_rows: [""],
+  grid_columns: [""],
 };
 
 export default function QuestionsManager() {
   const queryClient = useQueryClient();
-  const [newQuestion, setNewQuestion] = useState({ question_text: "", question_type: "text", is_required: false, survey_id: "" });
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [editData, setEditData] = useState({});
   const [filterSurveyId, setFilterSurveyId] = useState("all");
 
   const { data: questions = [] } = useQuery({
@@ -39,14 +42,16 @@ export default function QuestionsManager() {
     mutationFn: (data) => base44.entities.CustomQuestion.create({ ...data, is_active: true, sort_order: questions.length + 1 }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["custom-questions"] });
-      setNewQuestion({ question_text: "", question_type: "text", is_required: false, survey_id: "" });
       setIsAdding(false);
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.CustomQuestion.update(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["custom-questions"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["custom-questions"] });
+      setEditingId(null);
+    },
   });
 
   const deleteMutation = useMutation({
@@ -63,29 +68,12 @@ export default function QuestionsManager() {
     ? questions
     : questions.filter((q) => q.survey_id === filterSurveyId);
 
-  const SurveySelect = ({ value, onChange }) => (
-    <div>
-      <Label>Pesquisa</Label>
-      <Select value={value || ""} onValueChange={onChange}>
-        <SelectTrigger className="mt-1">
-          <SelectValue placeholder="Selecionar pesquisa..." />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={null}>Todas as pesquisas</SelectItem>
-          {surveys.map((s) => (
-            <SelectItem key={s.id} value={s.id}>{s.title}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-  );
-
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Perguntas Personalizadas</CardTitle>
-          <Button size="sm" onClick={() => setIsAdding(true)} className="gap-1.5">
+          <Button size="sm" onClick={() => { setIsAdding(true); setEditingId(null); }} className="gap-1.5">
             <Plus className="w-4 h-4" />
             Nova Pergunta
           </Button>
@@ -94,7 +82,6 @@ export default function QuestionsManager() {
           As perguntas ativas aparecem no formulário público após as seções padrão.
         </p>
 
-        {/* Filter by survey */}
         {surveys.length > 0 && (
           <div className="mt-3 flex gap-2 flex-wrap">
             <button
@@ -125,172 +112,89 @@ export default function QuestionsManager() {
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {/* Add form */}
         {isAdding && (
-          <div className="border rounded-xl p-4 bg-muted/30 space-y-3">
-            <div>
-              <Label>Texto da pergunta</Label>
-              <Input
-                className="mt-1"
-                placeholder="Digite a pergunta..."
-                value={newQuestion.question_text}
-                onChange={(e) => setNewQuestion((p) => ({ ...p, question_text: e.target.value }))}
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <SurveySelect
-                value={newQuestion.survey_id}
-                onChange={(val) => setNewQuestion((p) => ({ ...p, survey_id: val }))}
-              />
-              <div>
-                <Label>Tipo de resposta</Label>
-                <Select
-                  value={newQuestion.question_type}
-                  onValueChange={(val) => setNewQuestion((p) => ({ ...p, question_type: val }))}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(QUESTION_TYPES).map(([val, label]) => (
-                      <SelectItem key={val} value={val}>{label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-end gap-2 pb-0.5">
-                <Switch
-                  checked={newQuestion.is_required}
-                  onCheckedChange={(val) => setNewQuestion((p) => ({ ...p, is_required: val }))}
-                />
-                <Label>Obrigatória</Label>
-              </div>
-            </div>
-            <div className="flex gap-2 pt-1">
-              <Button
-                size="sm"
-                onClick={() => createMutation.mutate(newQuestion)}
-                disabled={!newQuestion.question_text || createMutation.isPending}
-              >
-                Salvar
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => setIsAdding(false)}>
-                Cancelar
-              </Button>
-            </div>
-          </div>
+          <QuestionForm
+            initial={DEFAULT_NEW}
+            surveys={surveys}
+            onSave={(d) => createMutation.mutate(d)}
+            onCancel={() => setIsAdding(false)}
+            isPending={createMutation.isPending}
+          />
         )}
 
-        {/* List */}
         {filteredQuestions.length === 0 && !isAdding ? (
           <p className="text-center text-muted-foreground text-sm py-8">
             Nenhuma pergunta encontrada
           </p>
         ) : (
-          filteredQuestions.map((q) => {
-            const isEditing = editingId === q.id;
-            return (
-              <div key={q.id} className="border rounded-xl bg-card overflow-hidden">
-                {isEditing ? (
-                  <div className="p-4 space-y-3 bg-muted/30">
-                    <div>
-                      <Label>Texto da pergunta</Label>
-                      <Input
-                        className="mt-1"
-                        value={editData.question_text}
-                        onChange={(e) => setEditData((p) => ({ ...p, question_text: e.target.value }))}
-                      />
+          filteredQuestions.map((q) => (
+            <div key={q.id} className="border rounded-xl bg-card overflow-hidden">
+              {editingId === q.id ? (
+                <QuestionForm
+                  initial={q}
+                  surveys={surveys}
+                  onSave={(d) => updateMutation.mutate({ id: q.id, data: d })}
+                  onCancel={() => setEditingId(null)}
+                  isPending={updateMutation.isPending}
+                />
+              ) : (
+                <div className="flex items-start gap-3 p-4">
+                  <GripVertical className="w-4 h-4 text-muted-foreground mt-1 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm">{q.question_text}</p>
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                      <Badge variant="outline" className="text-xs">{QUESTION_TYPES[q.question_type] || q.question_type}</Badge>
+                      {q.is_required && <Badge className="text-xs bg-destructive/10 text-destructive border-0">Obrigatória</Badge>}
+                      <Badge variant="outline" className="text-xs text-muted-foreground">{getSurveyName(q.survey_id)}</Badge>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <SurveySelect
-                        value={editData.survey_id}
-                        onChange={(val) => setEditData((p) => ({ ...p, survey_id: val }))}
-                      />
-                      <div>
-                        <Label>Tipo de resposta</Label>
-                        <Select
-                          value={editData.question_type}
-                          onValueChange={(val) => setEditData((p) => ({ ...p, question_type: val }))}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Object.entries(QUESTION_TYPES).map(([val, label]) => (
-                              <SelectItem key={val} value={val}>{label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="flex items-end gap-2 pb-0.5">
-                        <Switch
-                          checked={editData.is_required}
-                          onCheckedChange={(val) => setEditData((p) => ({ ...p, is_required: val }))}
-                        />
-                        <Label>Obrigatória</Label>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 pt-1">
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          updateMutation.mutate({ id: q.id, data: editData });
-                          setEditingId(null);
-                        }}
-                        disabled={!editData.question_text || updateMutation.isPending}
-                        className="gap-1.5"
-                      >
-                        <Check className="w-3.5 h-3.5" /> Salvar
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => setEditingId(null)} className="gap-1.5">
-                        <X className="w-3.5 h-3.5" /> Cancelar
-                      </Button>
-                    </div>
+                    {/* Preview options/scale/grid */}
+                    {q.options?.length > 0 && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Opções: {q.options.join(", ")}
+                      </p>
+                    )}
+                    {q.question_type === "linear_scale" && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Escala: {q.scale_min} → {q.scale_max}
+                        {q.scale_min_label && ` (${q.scale_min_label}`}
+                        {q.scale_max_label && ` → ${q.scale_max_label})`}
+                      </p>
+                    )}
+                    {q.question_type === "choice_grid" && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Grade: {q.grid_rows?.length || 0} linhas × {q.grid_columns?.length || 0} colunas
+                      </p>
+                    )}
                   </div>
-                ) : (
-                  <div className="flex items-start gap-3 p-4">
-                    <GripVertical className="w-4 h-4 text-muted-foreground mt-1 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">{q.question_text}</p>
-                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                        <Badge variant="outline" className="text-xs">{QUESTION_TYPES[q.question_type]}</Badge>
-                        {q.is_required && <Badge className="text-xs bg-destructive/10 text-destructive border-0">Obrigatória</Badge>}
-                        <Badge variant="outline" className="text-xs text-muted-foreground">{getSurveyName(q.survey_id)}</Badge>
-                      </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-1.5">
+                      <Switch
+                        checked={q.is_active}
+                        onCheckedChange={(val) => updateMutation.mutate({ id: q.id, data: { is_active: val } })}
+                      />
+                      <span className="text-xs text-muted-foreground">{q.is_active ? "Ativa" : "Inativa"}</span>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <div className="flex items-center gap-1.5">
-                        <Switch
-                          checked={q.is_active}
-                          onCheckedChange={(val) => updateMutation.mutate({ id: q.id, data: { is_active: val } })}
-                        />
-                        <span className="text-xs text-muted-foreground">{q.is_active ? "Ativa" : "Inativa"}</span>
-                      </div>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="w-8 h-8 text-muted-foreground hover:text-primary"
-                        onClick={() => {
-                          setEditingId(q.id);
-                          setEditData({ question_text: q.question_text, question_type: q.question_type, is_required: !!q.is_required, survey_id: q.survey_id || "" });
-                        }}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="w-8 h-8 text-muted-foreground hover:text-destructive"
-                        onClick={() => deleteMutation.mutate(q.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="w-8 h-8 text-muted-foreground hover:text-primary"
+                      onClick={() => { setEditingId(q.id); setIsAdding(false); }}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="w-8 h-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => deleteMutation.mutate(q.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
-                )}
-              </div>
-            );
-          })
+                </div>
+              )}
+            </div>
+          ))
         )}
       </CardContent>
     </Card>
