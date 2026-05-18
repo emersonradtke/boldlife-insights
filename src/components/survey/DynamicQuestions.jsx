@@ -45,14 +45,14 @@ function YesNoInput({ value, onChange }) {
   );
 }
 
-function MultipleChoiceInput({ options = [], value, onChange }) {
+function MultipleChoiceInput({ questionId, options = [], value, onChange }) {
   return (
     <div className="space-y-2">
       {options.map((opt) => (
         <label key={opt} className="flex items-center gap-2 cursor-pointer group">
           <input
             type="radio"
-            name={opt}
+            name={`question-${questionId}`}
             checked={value === opt}
             onChange={() => onChange(opt)}
             className="accent-primary w-4 h-4"
@@ -224,7 +224,7 @@ export default function DynamicQuestions({ questions, answers, onChange }) {
             <YesNoInput value={answers[q.id] || ""} onChange={(val) => handleChange(q.id, val)} />
           )}
           {q.question_type === "multiple_choice" && (
-            <MultipleChoiceInput options={q.options} value={answers[q.id] || ""} onChange={(val) => handleChange(q.id, val)} />
+            <MultipleChoiceInput questionId={q.id} options={q.options} value={answers[q.id] || ""} onChange={(val) => handleChange(q.id, val)} />
           )}
           {q.question_type === "checkbox" && (
             <CheckboxInput options={q.options} value={answers[q.id] || []} onChange={(val) => handleChange(q.id, val)} />
