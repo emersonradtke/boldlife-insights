@@ -172,10 +172,29 @@ export default function SurveyForm() {
     },
   });
 
+  const [customErrors, setCustomErrors] = useState([]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.full_name || !formData.email) return;
     if (formData.is_associate && requireAssociateCode && !formData.associate_code) return;
+
+    // Validar perguntas obrigatórias que não têm validação nativa do browser
+    const unanswered = activeQuestions.filter((q) => {
+      if (!q.is_required) return false;
+      if (["text", "textarea", "date", "time"].includes(q.question_type)) return false; // validado pelo required HTML
+      return !isFieldAnswered(formData.custom_answers?.[q.id]);
+    });
+
+    if (unanswered.length > 0) {
+      setCustomErrors(unanswered.map((q) => q.id));
+      // scroll até a primeira pergunta sem resposta
+      const el = document.getElementById(`question-${unanswered[0].id}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    setCustomErrors([]);
     submitMutation.mutate({ ...formData, survey_id: activeSurvey?.id || null });
   };
 
@@ -369,7 +388,8 @@ export default function SurveyForm() {
             <DynamicQuestions
               questions={activeQuestions}
               answers={formData.custom_answers}
-              onChange={(updated) => set("custom_answers")(updated)}
+              onChange={(updated) => { setCustomErrors([]); set("custom_answers")(updated); }}
+              errorIds={customErrors}
             />
           )}
 

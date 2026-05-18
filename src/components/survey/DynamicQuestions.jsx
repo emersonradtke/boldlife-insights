@@ -189,7 +189,7 @@ function FileUploadInput({ value, onChange }) {
   );
 }
 
-export default function DynamicQuestions({ questions, answers, onChange }) {
+export default function DynamicQuestions({ questions, answers, onChange, errorIds = [] }) {
   const active = questions.filter((q) => q.is_active);
   if (active.length === 0) return null;
 
@@ -198,18 +198,22 @@ export default function DynamicQuestions({ questions, answers, onChange }) {
   return (
     <div className="bg-card rounded-2xl border p-6 space-y-5">
       <h3 className="font-semibold text-foreground">Perguntas adicionais</h3>
-      {active.map((q, i) => (
+      {active.map((q, i) => {
+        const hasError = errorIds.includes(q.id);
+        return (
         <motion.div
           key={q.id}
+          id={`question-${q.id}`}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: i * 0.05 }}
-          className="space-y-2"
+          className={cn("space-y-2 rounded-xl p-3 -mx-3 transition-colors", hasError ? "bg-destructive/5 ring-1 ring-destructive/40" : "")}
         >
-          <Label>
+          <Label className={hasError ? "text-destructive" : ""}>
             {q.question_text}
             {q.is_required && <span className="text-destructive ml-1">*</span>}
           </Label>
+          {hasError && <p className="text-xs text-destructive">Esta pergunta é obrigatória.</p>}
 
           {q.question_type === "text" && (
             <Input required={q.is_required} placeholder="Sua resposta..." value={answers[q.id] || ""} onChange={(e) => handleChange(q.id, e.target.value)} />
@@ -260,7 +264,8 @@ export default function DynamicQuestions({ questions, answers, onChange }) {
             <Input type="time" required={q.is_required} value={answers[q.id] || ""} onChange={(e) => handleChange(q.id, e.target.value)} className="w-auto" />
           )}
         </motion.div>
-      ))}
+        );
+      })}
     </div>
   );
 }
