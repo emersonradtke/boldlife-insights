@@ -14,18 +14,18 @@ export default function SurveyHeader({ associateData, surveyTitle, surveyDescrip
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="text-center mb-10"
+      className="text-center mb-8"
     >
-      <div className="flex items-center justify-center mb-6">
-        <img src={logoUrl} alt="Bold Life" className="h-14 md:h-16 object-contain" />
+      <div className="flex items-center justify-center mb-5">
+        <img src={logoUrl} alt="Bold Life" className="h-16 md:h-20 object-contain" />
       </div>
 
-      <div className="w-16 h-0.5 bg-primary mx-auto mb-6 rounded-full" />
+      <div className="w-12 h-0.5 bg-primary mx-auto mb-6 rounded-full" />
 
-      <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
+      <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
         {title}
       </h2>
-      <p className="text-muted-foreground max-w-md mx-auto text-sm leading-relaxed">
+      <p className="text-gray-500 max-w-sm mx-auto text-sm leading-relaxed">
         {subtitle}
       </p>
 
