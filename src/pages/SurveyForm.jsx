@@ -185,9 +185,7 @@ export default function SurveyForm() {
     if (formData.is_associate === null || formData.is_associate === undefined || formData.is_associate === "") {
       newFieldErrors.is_associate = "Selecione uma opção";
     }
-    if (formData.is_associate && requireAssociateCode && !formData.associate_code.trim()) {
-      newFieldErrors.associate_code = "Código do associado é obrigatório";
-    }
+
     if (showBrands && formData.desired_brands.length === 0) {
       newFieldErrors.desired_brands = "Adicione pelo menos uma marca";
     }
@@ -372,7 +370,7 @@ export default function SurveyForm() {
             <AnimatePresence>
               {formData.is_associate && showAssociateCode && (
                 <motion.div id="field-associate_code" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                  <Label>{lbl("label_associate_code", "label_associate_code", "Código do Associado")}{requireAssociateCode ? " *" : ""}</Label>
+                  <Label>{lbl("label_associate_code", "label_associate_code", "Código do Associado")}</Label>
                   <Input
                     className={`mt-1 ${fieldErrors.associate_code ? "border-destructive focus-visible:ring-destructive" : ""}`}
                     placeholder={lbl("placeholder_associate_code", "placeholder_associate_code", "Ex: BL-00000")}
