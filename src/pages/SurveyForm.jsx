@@ -188,11 +188,17 @@ export default function SurveyForm() {
     if (formData.is_associate && requireAssociateCode && !formData.associate_code.trim()) {
       newFieldErrors.associate_code = "Código do associado é obrigatório";
     }
-    if (showBrands && formData.desired_brands.length === 0 && formData.desired_products.length === 0) {
-      newFieldErrors.brands_products = "Adicione pelo menos uma marca ou produto";
+    if (showBrands && formData.desired_brands.length === 0) {
+      newFieldErrors.desired_brands = "Adicione pelo menos uma marca";
+    }
+    if (showBrands && formData.desired_products.length === 0) {
+      newFieldErrors.desired_products = "Adicione pelo menos um produto";
     }
     if (showRating && !formData.satisfaction_rating) {
       newFieldErrors.satisfaction_rating = "Avaliação é obrigatória";
+    }
+    if (showRating && !formData.comments.trim()) {
+      newFieldErrors.comments = "Comentários são obrigatórios";
     }
 
     if (Object.keys(newFieldErrors).length > 0) {
@@ -381,20 +387,17 @@ export default function SurveyForm() {
 
           {/* Seção 3 — Marcas e Produtos */}
           {showBrands && (
-            <div id="field-brands_products" className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
-              <h3 className="font-semibold text-foreground">{lbl("section3_title", "section3_title", "Marcas e Produtos")} *</h3>
-              {fieldErrors.brands_products && (
-                <p className="text-xs text-destructive flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />{fieldErrors.brands_products}
-                </p>
-              )}
-              <div>
-                <Label>{lbl("label_brands", "label_brands", "Quais marcas você gostaria de ver na plataforma?")}</Label>
-                <BrandInput brands={formData.desired_brands} onChange={(v) => { set("desired_brands")(v); setFieldErrors(p => ({ ...p, brands_products: undefined })); }} />
+            <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
+              <h3 className="font-semibold text-foreground">{lbl("section3_title", "section3_title", "Marcas e Produtos")}</h3>
+              <div id="field-desired_brands">
+                <Label>{lbl("label_brands", "label_brands", "Quais marcas você gostaria de ver na plataforma?")} *</Label>
+                <BrandInput brands={formData.desired_brands} onChange={(v) => { set("desired_brands")(v); setFieldErrors(p => ({ ...p, desired_brands: undefined })); }} />
+                {fieldErrors.desired_brands && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{fieldErrors.desired_brands}</p>}
               </div>
-              <div>
-                <Label>{lbl("label_products", "label_products", "Quais produtos gostaria de encontrar?")}</Label>
-                <ProductInput products={formData.desired_products} onChange={(v) => { set("desired_products")(v); setFieldErrors(p => ({ ...p, brands_products: undefined })); }} />
+              <div id="field-desired_products">
+                <Label>{lbl("label_products", "label_products", "Quais produtos gostaria de encontrar?")} *</Label>
+                <ProductInput products={formData.desired_products} onChange={(v) => { set("desired_products")(v); setFieldErrors(p => ({ ...p, desired_products: undefined })); }} />
+                {fieldErrors.desired_products && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{fieldErrors.desired_products}</p>}
               </div>
             </div>
           )}
@@ -408,14 +411,15 @@ export default function SurveyForm() {
                 <RatingStars rating={formData.satisfaction_rating} onChange={(v) => { set("satisfaction_rating")(v); setFieldErrors(p => ({ ...p, satisfaction_rating: undefined })); }} />
                 {fieldErrors.satisfaction_rating && <p className="text-xs text-destructive mt-1">{fieldErrors.satisfaction_rating}</p>}
               </div>
-              <div>
-                <Label>{lbl("label_comments", "label_comments", "Comentários e Sugestões")}</Label>
+              <div id="field-comments">
+                <Label>{lbl("label_comments", "label_comments", "Comentários e Sugestões")} *</Label>
                 <Textarea
-                  className="mt-1 min-h-[100px]"
+                  className={`mt-1 min-h-[100px] ${fieldErrors.comments ? "border-destructive focus-visible:ring-destructive" : ""}`}
                   placeholder={lbl("placeholder_comments", "placeholder_comments", "Compartilhe suas ideias...")}
                   value={formData.comments}
-                  onChange={(e) => set("comments")(e.target.value)}
+                  onChange={(e) => { set("comments")(e.target.value); setFieldErrors(p => ({ ...p, comments: undefined })); }}
                 />
+                {fieldErrors.comments && <p className="text-xs text-destructive mt-1">{fieldErrors.comments}</p>}
               </div>
             </div>
           )}
