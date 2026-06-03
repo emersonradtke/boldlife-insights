@@ -173,22 +173,41 @@ export default function SurveyForm() {
   });
 
   const [customErrors, setCustomErrors] = useState([]);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.full_name || !formData.email) return;
-    if (formData.is_associate && requireAssociateCode && !formData.associate_code) return;
+
+    // Validação manual dos campos obrigatórios principais
+    const newFieldErrors = {};
+    if (!formData.full_name.trim()) newFieldErrors.full_name = "Nome é obrigatório";
+    if (!formData.email.trim()) newFieldErrors.email = "E-mail é obrigatório";
+    if (formData.is_associate === null || formData.is_associate === undefined || formData.is_associate === "") {
+      newFieldErrors.is_associate = "Selecione uma opção";
+    }
+    if (formData.is_associate && requireAssociateCode && !formData.associate_code.trim()) {
+      newFieldErrors.associate_code = "Código do associado é obrigatório";
+    }
+
+    if (Object.keys(newFieldErrors).length > 0) {
+      setFieldErrors(newFieldErrors);
+      // Scroll até o primeiro campo com erro
+      const firstKey = Object.keys(newFieldErrors)[0];
+      const el = document.getElementById(`field-${firstKey}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    setFieldErrors({});
 
     // Validar perguntas obrigatórias que não têm validação nativa do browser
     const unanswered = activeQuestions.filter((q) => {
       if (!q.is_required) return false;
-      if (["text", "textarea", "date", "time"].includes(q.question_type)) return false; // validado pelo required HTML
+      if (["text", "textarea", "date", "time"].includes(q.question_type)) return false;
       return !isFieldAnswered(formData.custom_answers?.[q.id]);
     });
 
     if (unanswered.length > 0) {
       setCustomErrors(unanswered.map((q) => q.id));
-      // scroll até a primeira pergunta sem resposta
       const el = document.getElementById(`question-${unanswered[0].id}`);
       if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
@@ -268,21 +287,26 @@ export default function SurveyForm() {
           {/* Seção 1 — Dados Pessoais */}
           <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
             <h3 className="font-semibold text-foreground">{lbl("section1_title", "section1_title", "Dados Pessoais")}</h3>
-            <div>
+            <div id="field-full_name">
               <Label>{lbl("label_full_name", "label_full_name", "Nome Completo *")}</Label>
-              <Input className="mt-1" value={formData.full_name} onChange={(e) => set("full_name")(e.target.value)} required />
+              <Input
+                className={`mt-1 ${fieldErrors.full_name ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                value={formData.full_name}
+                onChange={(e) => { set("full_name")(e.target.value); setFieldErrors(p => ({ ...p, full_name: undefined })); }}
+              />
+              {fieldErrors.full_name && <p className="text-xs text-destructive mt-1">{fieldErrors.full_name}</p>}
             </div>
 
-            <div>
+            <div id="field-email">
               <Label>{lbl("label_email", "label_email", "E-mail *")}</Label>
-              <Input 
-                className="mt-1" 
-                type="email" 
-                value={formData.email} 
-                onChange={(e) => set("email")(e.target.value)} 
+              <Input
+                className={`mt-1 ${fieldErrors.email ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                type="email"
+                value={formData.email}
+                onChange={(e) => { set("email")(e.target.value); setFieldErrors(p => ({ ...p, email: undefined })); }}
                 disabled={!formData.full_name.trim()}
-                required 
               />
+              {fieldErrors.email && <p className="text-xs text-destructive mt-1">{fieldErrors.email}</p>}
             </div>
 
             <div>
@@ -307,7 +331,7 @@ export default function SurveyForm() {
           {/* Seção 2 — Vínculo */}
           <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
             <h3 className="font-semibold text-foreground">{lbl("section2_title", "section2_title", "Vínculo Bold Life")}</h3>
-            <div>
+            <div id="field-is_associate">
               <Label className="mb-2 block">{lbl("label_is_associate", "label_is_associate", "Você é associado(a) Bold Life? *")}</Label>
               <div className="flex gap-3">
                 {[
@@ -317,10 +341,12 @@ export default function SurveyForm() {
                   <button
                     key={String(val)}
                     type="button"
-                    onClick={() => set("is_associate")(val)}
+                    onClick={() => { set("is_associate")(val); setFieldErrors(p => ({ ...p, is_associate: undefined })); }}
                     className={`flex-1 py-2.5 px-4 rounded-xl border-2 text-sm font-medium transition-all ${
                       formData.is_associate === val
                         ? "border-primary bg-primary/5 text-primary"
+                        : fieldErrors.is_associate
+                        ? "border-destructive text-muted-foreground"
                         : "border-border text-muted-foreground hover:border-primary/30"
                     }`}
                   >
@@ -328,19 +354,20 @@ export default function SurveyForm() {
                   </button>
                 ))}
               </div>
+              {fieldErrors.is_associate && <p className="text-xs text-destructive mt-1">{fieldErrors.is_associate}</p>}
             </div>
 
             <AnimatePresence>
               {formData.is_associate && showAssociateCode && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                <motion.div id="field-associate_code" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
                   <Label>{lbl("label_associate_code", "label_associate_code", "Código do Associado")}{requireAssociateCode ? " *" : ""}</Label>
                   <Input
-                    className="mt-1"
+                    className={`mt-1 ${fieldErrors.associate_code ? "border-destructive focus-visible:ring-destructive" : ""}`}
                     placeholder={lbl("placeholder_associate_code", "placeholder_associate_code", "Ex: BL-00000")}
                     value={formData.associate_code}
-                    onChange={(e) => set("associate_code")(e.target.value)}
-                    required={requireAssociateCode}
+                    onChange={(e) => { set("associate_code")(e.target.value); setFieldErrors(p => ({ ...p, associate_code: undefined })); }}
                   />
+                  {fieldErrors.associate_code && <p className="text-xs text-destructive mt-1">{fieldErrors.associate_code}</p>}
                 </motion.div>
               )}
             </AnimatePresence>
