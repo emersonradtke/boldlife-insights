@@ -394,7 +394,7 @@ export default function SurveyForm() {
               </div>
               <div id="field-desired_products">
                 <Label>{lbl("label_products", "label_products", "Quais produtos gostaria de encontrar?")} *</Label>
-                <ProductInput products={formData.desired_products} onChange={(v) => { set("desired_products")(v); setFieldErrors(p => ({ ...p, desired_products: undefined })); }} />
+                <ProductInput products={formData.desired_products} onChange={(v) => { set("desired_products")(v); setFieldErrors(p => ({ ...p, desired_products: undefined })); }} availableBrands={formData.desired_brands} />
                 {fieldErrors.desired_products && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{fieldErrors.desired_products}</p>}
               </div>
             </div>

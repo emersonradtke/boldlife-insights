@@ -17,19 +17,21 @@ const COLORS = [
 export default function ProductsChart({ responses }) {
   const [view, setView] = useState("chart"); // "chart" | "table"
 
-  // Agrega dados por produto
+  // Agrega dados por produto + marca
   const productMap = {};
   responses.forEach((r) => {
     const products = Array.isArray(r.desired_products) ? r.desired_products : [];
     products.forEach((product) => {
       const rawName = typeof product === "string" ? product : product?.name;
       if (!rawName) return;
-      const key = rawName.trim().toLowerCase();
+      const brandVal = typeof product === "object" && product?.brand ? product.brand.trim() : "";
+      const key = (rawName.trim() + "|" + brandVal).toLowerCase();
       const display = rawName.trim();
 
       if (!productMap[key]) {
         productMap[key] = {
           name: display,
+          brand: brandVal,
           count: 0,
           mensal: 0,
           ocasional: 0,
@@ -59,6 +61,7 @@ export default function ProductsChart({ responses }) {
     .slice(0, 10)
     .map((p) => ({
       ...p,
+      label: p.brand ? `${p.name} · ${p.brand}` : p.name,
       avgQty: p.qtyCount > 0 ? (p.totalQty / p.qtyCount).toFixed(1) : null,
     }));
 
@@ -105,10 +108,10 @@ export default function ProductsChart({ responses }) {
               <BarChart data={data} layout="vertical" margin={{ left: 10, right: 20 }}>
                 <XAxis type="number" allowDecimals={false} fontSize={12} />
                 <YAxis
-                  dataKey="name"
+                  dataKey="label"
                   type="category"
-                  width={130}
-                  fontSize={12}
+                  width={160}
+                  fontSize={11}
                   tickLine={false}
                 />
                 <Tooltip
@@ -133,6 +136,7 @@ export default function ProductsChart({ responses }) {
               <thead>
                 <tr className="border-b text-muted-foreground text-xs uppercase tracking-wider">
                   <th className="py-2 pr-4 text-left font-medium">Produto</th>
+                  <th className="py-2 pr-4 text-left font-medium">Marca</th>
                   <th className="py-2 px-3 text-center font-medium">Solicitações</th>
                   <th className="py-2 px-3 text-center font-medium">Qtd. Média</th>
                   <th className="py-2 px-3 text-center font-medium">Mensal</th>
@@ -141,7 +145,7 @@ export default function ProductsChart({ responses }) {
               </thead>
               <tbody>
                 {data.map((product, index) => (
-                  <tr key={product.name} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                  <tr key={product.label} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                     <td className="py-2.5 pr-4">
                       <div className="flex items-center gap-2">
                         <div
@@ -150,6 +154,9 @@ export default function ProductsChart({ responses }) {
                         />
                         <span className="font-medium text-foreground">{product.name}</span>
                       </div>
+                    </td>
+                    <td className="py-2.5 pr-4 text-sm text-muted-foreground">
+                      {product.brand || "—"}
                     </td>
                     <td className="py-2.5 px-3 text-center">
                       <span className="inline-flex items-center justify-center bg-primary/10 text-primary font-semibold rounded-full px-2.5 py-0.5 text-xs">

@@ -5,8 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, X, Package } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function ProductInput({ products, onChange }) {
+export default function ProductInput({ products, onChange, availableBrands = [] }) {
   const [name, setName] = useState("");
+  const [brand, setBrand] = useState("");
   const [quantity, setQuantity] = useState("");
   const [frequency, setFrequency] = useState("mensal");
 
@@ -15,8 +16,9 @@ export default function ProductInput({ products, onChange }) {
     if (!trimmed || !quantity) return;
     const alreadyExists = products.some((p) => p.name?.toLowerCase() === trimmed.toLowerCase());
     if (alreadyExists) return;
-    onChange([...products, { name: trimmed, quantity: quantity.trim(), frequency }]);
+    onChange([...products, { name: trimmed, brand: brand.trim(), quantity: quantity.trim(), frequency }]);
     setName("");
+    setBrand("");
     setQuantity("");
     setFrequency("mensal");
   };
@@ -44,6 +46,29 @@ export default function ProductInput({ products, onChange }) {
             onKeyDown={handleKeyDown}
             className="w-full"
           />
+        </div>
+        <div>
+          <p className="text-xs font-medium text-muted-foreground mb-1">Marca</p>
+          {availableBrands.length > 0 ? (
+            <Select value={brand} onValueChange={setBrand}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione ou deixe em branco" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={null}>Nenhuma</SelectItem>
+                {availableBrands.map((b) => (
+                  <SelectItem key={b} value={b}>{b}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <Input
+              placeholder="Marca (opcional)"
+              value={brand}
+              onChange={(e) => setBrand(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          )}
         </div>
         <div className="flex gap-2 items-end">
           <div className="w-36">
@@ -103,7 +128,10 @@ export default function ProductInput({ products, onChange }) {
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <Package className="w-3.5 h-3.5 text-primary shrink-0" />
-                    <span className="text-sm font-medium truncate">{label}</span>
+                    <span className="text-sm font-medium truncate">
+                      {label}
+                      {typeof product === "object" && product.brand ? ` · ${product.brand}` : ""}
+                    </span>
                     {qty && (
                       <span className="text-xs text-muted-foreground shrink-0">
                         · {qty}x {freq === "mensal" ? "por mês" : "ocasional"}
