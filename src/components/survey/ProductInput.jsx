@@ -47,31 +47,30 @@ export default function ProductInput({ products, onChange, availableBrands = [] 
             className="w-full"
           />
         </div>
-        {name.trim() && (
-          <div>
-            <p className="text-xs font-medium text-muted-foreground mb-1">Marca</p>
-            {availableBrands.length > 0 ? (
-              <Select value={brand} onValueChange={setBrand}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione ou deixe em branco" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={null}>Nenhuma</SelectItem>
-                  {availableBrands.map((b) => (
-                    <SelectItem key={b} value={b}>{b}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <Input
-                placeholder="Marca (opcional)"
-                value={brand}
-                onChange={(e) => setBrand(e.target.value)}
-                onKeyDown={handleKeyDown}
-              />
-            )}
-          </div>
-        )}
+        <div>
+          <p className="text-xs font-medium text-muted-foreground mb-1">Marca</p>
+          {availableBrands.length > 0 ? (
+            <Select value={brand} onValueChange={setBrand} disabled={!name.trim()}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione ou deixe em branco" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={null}>Nenhuma</SelectItem>
+                {availableBrands.map((b) => (
+                  <SelectItem key={b} value={b}>{b}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <Input
+              placeholder="Marca (opcional)"
+              value={brand}
+              onChange={(e) => setBrand(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={!name.trim()}
+            />
+          )}
+        </div>
         <div className="flex gap-2 items-end">
           <div className="w-36">
             <p className="text-xs font-medium text-muted-foreground mb-1">Quantidade média *</p>
