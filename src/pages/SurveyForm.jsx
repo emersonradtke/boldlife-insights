@@ -188,6 +188,9 @@ export default function SurveyForm() {
     if (formData.is_associate && requireAssociateCode && !formData.associate_code.trim()) {
       newFieldErrors.associate_code = "Código do associado é obrigatório";
     }
+    if (showBrands && formData.desired_brands.length === 0 && formData.desired_products.length === 0) {
+      newFieldErrors.brands_products = "Adicione pelo menos uma marca ou produto";
+    }
     if (showRating && !formData.satisfaction_rating) {
       newFieldErrors.satisfaction_rating = "Avaliação é obrigatória";
     }
@@ -378,15 +381,20 @@ export default function SurveyForm() {
 
           {/* Seção 3 — Marcas e Produtos */}
           {showBrands && (
-            <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
-              <h3 className="font-semibold text-foreground">{lbl("section3_title", "section3_title", "Marcas e Produtos")}</h3>
+            <div id="field-brands_products" className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
+              <h3 className="font-semibold text-foreground">{lbl("section3_title", "section3_title", "Marcas e Produtos")} *</h3>
+              {fieldErrors.brands_products && (
+                <p className="text-xs text-destructive flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />{fieldErrors.brands_products}
+                </p>
+              )}
               <div>
                 <Label>{lbl("label_brands", "label_brands", "Quais marcas você gostaria de ver na plataforma?")}</Label>
-                <BrandInput brands={formData.desired_brands} onChange={set("desired_brands")} />
+                <BrandInput brands={formData.desired_brands} onChange={(v) => { set("desired_brands")(v); setFieldErrors(p => ({ ...p, brands_products: undefined })); }} />
               </div>
               <div>
                 <Label>{lbl("label_products", "label_products", "Quais produtos gostaria de encontrar?")}</Label>
-                <ProductInput products={formData.desired_products} onChange={set("desired_products")} />
+                <ProductInput products={formData.desired_products} onChange={(v) => { set("desired_products")(v); setFieldErrors(p => ({ ...p, brands_products: undefined })); }} />
               </div>
             </div>
           )}
