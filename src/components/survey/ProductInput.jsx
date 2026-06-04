@@ -49,6 +49,7 @@ export default function ProductInput({ products, onChange, availableBrands = [] 
         </div>
         <div>
           <p className="text-xs font-medium text-muted-foreground mb-1">Marca</p>
+          <p className="text-xs text-muted-foreground mb-2">Escolha a marca de sua preferência para o produto informado</p>
           {availableBrands.length > 0 ? (
             <Select value={brand} onValueChange={setBrand} disabled={!name.trim()}>
               <SelectTrigger>
