@@ -89,22 +89,11 @@ export default function ProductInput({ products, onChange, availableBrands = [] 
           </div>
           <div className="w-28">
             <p className="text-xs font-medium text-muted-foreground mb-1">Unidade</p>
-            <Select value={unit} onValueChange={setUnit}>
-              <SelectTrigger>
-                <SelectValue placeholder="—" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="un">un</SelectItem>
-                <SelectItem value="kg">kg</SelectItem>
-                <SelectItem value="g">g</SelectItem>
-                <SelectItem value="L">L</SelectItem>
-                <SelectItem value="mL">mL</SelectItem>
-                <SelectItem value="cx">cx</SelectItem>
-                <SelectItem value="pct">pct</SelectItem>
-                <SelectItem value="par">par</SelectItem>
-                <SelectItem value="dz">dz</SelectItem>
-              </SelectContent>
-            </Select>
+            <Input
+              placeholder="Ex: kg, un, L"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              onKeyDown={handleKeyDown} />
           </div>
           <div className="flex-1">
             <p className="text-xs font-medium text-muted-foreground mb-1">Periodicidade *</p>
