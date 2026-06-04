@@ -389,6 +389,7 @@ export default function SurveyForm() {
               <h3 className="font-semibold text-foreground">{lbl("section3_title", "section3_title", "Marcas e Produtos")}</h3>
               <div id="field-desired_brands">
                 <Label>{lbl("label_brands", "label_brands", "Quais marcas você gostaria de ver na plataforma?")} *</Label>
+                <p className="text-xs text-muted-foreground mb-2">Pense apenas na marca!</p>
                 <BrandInput brands={formData.desired_brands} onChange={(v) => { set("desired_brands")(v); setFieldErrors(p => ({ ...p, desired_brands: undefined })); }} />
                 {fieldErrors.desired_brands && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{fieldErrors.desired_brands}</p>}
               </div>
