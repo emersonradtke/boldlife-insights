@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Star, Search, Pencil } from "lucide-react";
-import { format, toZonedTime } from "date-fns-tz";
+import { format } from "date-fns";
 import EditResponseModal from "./EditResponseModal";
 
 export default function ResponsesTable({ responses }) {
@@ -109,7 +109,7 @@ export default function ResponsesTable({ responses }) {
                       </div>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {r.created_date ? format(toZonedTime(new Date(r.created_date), "America/Sao_Paulo"), "dd/MM/yyyy HH:mm") : "—"}
+                      {r.created_date ? new Date(r.created_date).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
                     </TableCell>
                     <TableCell>
                       <button
