@@ -314,6 +314,11 @@ export default function SurveyForm() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => { set("email")(e.target.value); setFieldErrors(p => ({ ...p, email: undefined })); }}
+                onBlur={() => {
+                  if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+                    setFieldErrors(p => ({ ...p, email: "E-mail inválido" }));
+                  }
+                }}
                 disabled={!formData.full_name.trim()}
               />
               {fieldErrors.email && <p className="text-xs text-destructive mt-1">{fieldErrors.email}</p>}
