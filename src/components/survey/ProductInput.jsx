@@ -44,33 +44,33 @@ export default function ProductInput({ products, onChange, availableBrands = [] 
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full"
-          />
+            className="w-full" />
+          
         </div>
         <div>
           <p className="text-xs font-medium text-muted-foreground mb-1">Marca</p>
-          <p className="text-xs text-muted-foreground mb-2">Escolha a marca de sua preferência para o produto informado</p>
-          {availableBrands.length > 0 ? (
-            <Select value={brand} onValueChange={setBrand} disabled={!name.trim()}>
+          <p className="text-xs text-muted-foreground mb-2">Escolha a marca de sua preferência para o produto informado!</p>
+          {availableBrands.length > 0 ?
+          <Select value={brand} onValueChange={setBrand} disabled={!name.trim()}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione ou deixe em branco" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={null}>Nenhuma</SelectItem>
-                {availableBrands.map((b) => (
-                  <SelectItem key={b} value={b}>{b}</SelectItem>
-                ))}
+                {availableBrands.map((b) =>
+              <SelectItem key={b} value={b}>{b}</SelectItem>
+              )}
               </SelectContent>
-            </Select>
-          ) : (
-            <Input
-              placeholder="Marca (opcional)"
-              value={brand}
-              onChange={(e) => setBrand(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={!name.trim()}
-            />
-          )}
+            </Select> :
+
+          <Input
+            placeholder="Marca (opcional)"
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={!name.trim()} />
+
+          }
         </div>
         <div className="flex gap-2 items-end">
           <div className="w-36">
@@ -81,8 +81,8 @@ export default function ProductInput({ products, onChange, availableBrands = [] 
               placeholder="Ex: 2"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
+              onKeyDown={handleKeyDown} />
+            
           </div>
           <div className="flex-1">
             <p className="text-xs font-medium text-muted-foreground mb-1">Periodicidade *</p>
@@ -101,63 +101,63 @@ export default function ProductInput({ products, onChange, availableBrands = [] 
             onClick={addProduct}
             size="icon"
             disabled={!name.trim() || !quantity}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 mb-0.5"
-          >
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 mb-0.5">
+            
             <Plus className="w-4 h-4" />
           </Button>
         </div>
       </div>
 
       <AnimatePresence>
-        {products.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="space-y-2"
-          >
+        {products.length > 0 &&
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="space-y-2">
+          
             {products.map((product, index) => {
-              const label = typeof product === "string" ? product : product.name;
-              const qty = typeof product === "object" && product.quantity;
-              const freq = typeof product === "object" && product.frequency;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ scale: 0.97, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.97, opacity: 0 }}
-                  className="flex items-center justify-between gap-2 bg-muted/50 rounded-lg px-3 py-2 border"
-                >
+            const label = typeof product === "string" ? product : product.name;
+            const qty = typeof product === "object" && product.quantity;
+            const freq = typeof product === "object" && product.frequency;
+            return (
+              <motion.div
+                key={index}
+                initial={{ scale: 0.97, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.97, opacity: 0 }}
+                className="flex items-center justify-between gap-2 bg-muted/50 rounded-lg px-3 py-2 border">
+                
                   <div className="flex items-center gap-2 min-w-0">
                     <Package className="w-3.5 h-3.5 text-primary shrink-0" />
                     <span className="text-sm font-medium truncate">
                       {label}
                       {typeof product === "object" && product.brand ? ` · ${product.brand}` : ""}
                     </span>
-                    {qty && (
-                      <span className="text-xs text-muted-foreground shrink-0">
+                    {qty &&
+                  <span className="text-xs text-muted-foreground shrink-0">
                         · {qty}x {freq === "mensal" ? "por mês" : "ocasional"}
                       </span>
-                    )}
-                    {!qty && freq && (
-                      <span className="text-xs text-muted-foreground shrink-0">
+                  }
+                    {!qty && freq &&
+                  <span className="text-xs text-muted-foreground shrink-0">
                         · {freq === "mensal" ? "mensal" : "ocasional"}
                       </span>
-                    )}
+                  }
                   </div>
                   <button
-                    type="button"
-                    onClick={() => removeProduct(index)}
-                    className="hover:bg-destructive/10 rounded-full p-1 transition-colors text-muted-foreground hover:text-destructive shrink-0"
-                  >
+                  type="button"
+                  onClick={() => removeProduct(index)}
+                  className="hover:bg-destructive/10 rounded-full p-1 transition-colors text-muted-foreground hover:text-destructive shrink-0">
+                  
                     <X className="w-3.5 h-3.5" />
                   </button>
-                </motion.div>
-              );
-            })}
+                </motion.div>);
+
+          })}
           </motion.div>
-        )}
+        }
       </AnimatePresence>
-    </div>
-  );
+    </div>);
+
 }
