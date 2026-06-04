@@ -5,6 +5,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, X, Package } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const UNITS = [
+  { value: "UN", label: "UN - Unidade" },
+  { value: "KG", label: "KG - Quilograma" },
+  { value: "G", label: "G - Grama" },
+  { value: "L", label: "L - Litro" },
+  { value: "ML", label: "ML - Mililitro" },
+  { value: "CX", label: "CX - Caixa" },
+  { value: "PCT", label: "PCT - Pacote" },
+  { value: "FD", label: "FD - Fardo" },
+  { value: "DZ", label: "DZ - Dúzia" },
+  { value: "LT", label: "LT - Lata" },
+  { value: "FR", label: "FR - Frasco" },
+  { value: "GF", label: "GF - Garrafa" },
+  { value: "SC", label: "SC - Saco" },
+  { value: "MC", label: "MC - Maço" },
+  { value: "BDJ", label: "BDJ - Bandeja" },
+  { value: "PLT", label: "PLT - Palete" },
+];
+
 export default function ProductInput({ products, onChange, availableBrands = [] }) {
   const [name, setName] = useState("");
   const [brand, setBrand] = useState("");
@@ -87,13 +106,20 @@ export default function ProductInput({ products, onChange, availableBrands = [] 
               onChange={(e) => setQuantity(e.target.value)}
               onKeyDown={handleKeyDown} />
           </div>
-          <div className="w-28">
+          <div className="w-32">
             <p className="text-xs font-medium text-muted-foreground mb-1">Unidade</p>
-            <Input
-              placeholder="Ex: kg, un, L"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-              onKeyDown={handleKeyDown} />
+            <Select value={unit} onValueChange={setUnit}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                {UNITS.map((u) => (
+                  <SelectItem key={u.value} value={u.value}>
+                    {u.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex-1">
             <p className="text-xs font-medium text-muted-foreground mb-1">Periodicidade *</p>
