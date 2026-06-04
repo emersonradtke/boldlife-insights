@@ -110,9 +110,10 @@ export default function ProductsChart({ responses }) {
                 <YAxis
                   dataKey="label"
                   type="category"
-                  width={160}
+                  width={200}
                   fontSize={11}
                   tickLine={false}
+                  tick={{ width: 195 }}
                 />
                 <Tooltip
                   contentStyle={{
@@ -121,10 +122,11 @@ export default function ProductsChart({ responses }) {
                     boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
                   }}
                   formatter={(value) => [`${value} solicitações`, "Quantidade"]}
+                  labelFormatter={(label) => label}
                 />
                 <Bar dataKey="count" radius={[0, 6, 6, 0]} barSize={24}>
                   {data.map((entry, index) => (
-                    <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={entry.label} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Bar>
               </BarChart>
