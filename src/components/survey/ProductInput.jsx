@@ -9,17 +9,21 @@ export default function ProductInput({ products, onChange, availableBrands = [] 
   const [name, setName] = useState("");
   const [brand, setBrand] = useState("");
   const [quantity, setQuantity] = useState("");
+  const [unit, setUnit] = useState("");
   const [frequency, setFrequency] = useState("mensal");
 
   const addProduct = () => {
     const trimmed = name.trim();
     if (!trimmed || !quantity) return;
-    const alreadyExists = products.some((p) => p.name?.toLowerCase() === trimmed.toLowerCase());
+    const alreadyExists = products.some(
+      (p) => p.name?.toLowerCase() === trimmed.toLowerCase() && (p.brand || "").toLowerCase() === brand.trim().toLowerCase()
+    );
     if (alreadyExists) return;
-    onChange([...products, { name: trimmed, brand: brand.trim(), quantity: quantity.trim(), frequency }]);
+    onChange([...products, { name: trimmed, brand: brand.trim(), quantity: quantity.trim(), unit: unit.trim(), frequency }]);
     setName("");
     setBrand("");
     setQuantity("");
+    setUnit("");
     setFrequency("mensal");
   };
 
@@ -73,7 +77,7 @@ export default function ProductInput({ products, onChange, availableBrands = [] 
           }
         </div>
         <div className="flex gap-2 items-end">
-          <div className="w-36">
+          <div className="w-28">
             <p className="text-xs font-medium text-muted-foreground mb-1">Quantidade média *</p>
             <Input
               type="number"
@@ -82,7 +86,14 @@ export default function ProductInput({ products, onChange, availableBrands = [] 
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               onKeyDown={handleKeyDown} />
-            
+          </div>
+          <div className="w-28">
+            <p className="text-xs font-medium text-muted-foreground mb-1">Unidade</p>
+            <Input
+              placeholder="Ex: kg, un, L"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              onKeyDown={handleKeyDown} />
           </div>
           <div className="flex-1">
             <p className="text-xs font-medium text-muted-foreground mb-1">Periodicidade *</p>
@@ -119,6 +130,7 @@ export default function ProductInput({ products, onChange, availableBrands = [] 
             {products.map((product, index) => {
             const label = typeof product === "string" ? product : product.name;
             const qty = typeof product === "object" && product.quantity;
+            const unitVal = typeof product === "object" && product.unit;
             const freq = typeof product === "object" && product.frequency;
             return (
               <motion.div
@@ -136,7 +148,7 @@ export default function ProductInput({ products, onChange, availableBrands = [] 
                     </span>
                     {qty &&
                   <span className="text-xs text-muted-foreground shrink-0">
-                        · {qty}x {freq === "mensal" ? "por mês" : "ocasional"}
+                        · {qty}{unitVal ? ` ${unitVal}` : "x"} {freq === "mensal" ? "por mês" : "ocasional"}
                       </span>
                   }
                     {!qty && freq &&

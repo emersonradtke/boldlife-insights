@@ -42,8 +42,15 @@
           "name": {
             "type": "string"
           },
+          "brand": {
+            "type": "string"
+          },
           "quantity": {
             "type": "string"
+          },
+          "unit": {
+            "type": "string",
+            "description": "Unidade de medida (ex: kg, un, L)"
           },
           "frequency": {
             "type": "string",

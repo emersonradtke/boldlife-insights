@@ -25,6 +25,7 @@ export default function ProductsChart({ responses }) {
       const rawName = typeof product === "string" ? product : product?.name;
       if (!rawName) return;
       const brandVal = typeof product === "object" && product?.brand ? product.brand.trim() : "";
+      const unitVal = typeof product === "object" && product?.unit ? product.unit.trim() : "";
       const key = (rawName.trim() + "|" + brandVal).toLowerCase();
       const display = rawName.trim();
 
@@ -32,6 +33,7 @@ export default function ProductsChart({ responses }) {
         productMap[key] = {
           name: display,
           brand: brandVal,
+          unit: unitVal,
           count: 0,
           mensal: 0,
           ocasional: 0,
@@ -39,6 +41,8 @@ export default function ProductsChart({ responses }) {
           qtyCount: 0,
         };
       }
+      // Atualiza unidade se ainda não preenchida
+      if (!productMap[key].unit && unitVal) productMap[key].unit = unitVal;
 
       productMap[key].count++;
 
@@ -63,6 +67,7 @@ export default function ProductsChart({ responses }) {
       ...p,
       label: p.brand ? `${p.name} · ${p.brand}` : p.name,
       avgQty: p.qtyCount > 0 ? (p.totalQty / p.qtyCount).toFixed(1) : null,
+      unit: p.unit,
     }));
 
   if (data.length === 0) {
@@ -166,7 +171,7 @@ export default function ProductsChart({ responses }) {
                       </span>
                     </td>
                     <td className="py-2.5 px-3 text-center text-muted-foreground">
-                      {product.avgQty ? `${product.avgQty}×` : "—"}
+                      {product.avgQty ? `${product.avgQty}${product.unit ? ` ${product.unit}` : "×"}` : "—"}
                     </td>
                     <td className="py-2.5 px-3 text-center">
                       {product.mensal > 0 ? (
