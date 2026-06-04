@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Star, Search, Pencil } from "lucide-react";
-import { format } from "date-fns";
+
 import EditResponseModal from "./EditResponseModal";
 
 export default function ResponsesTable({ responses }) {
