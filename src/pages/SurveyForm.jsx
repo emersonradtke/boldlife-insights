@@ -307,7 +307,7 @@ export default function SurveyForm() {
               {fieldErrors.full_name && <p className="text-xs text-destructive mt-1">{fieldErrors.full_name}</p>}
             </div>
 
-            <div id="field-email">
+            <div id="field-email" className={!formData.full_name.trim() ? "opacity-50 pointer-events-none" : ""}>
               <Label>{lbl("label_email", "label_email", "E-mail *")}</Label>
               <Input
                 className={`mt-1 ${fieldErrors.email ? "border-destructive focus-visible:ring-destructive" : ""}`}
@@ -319,7 +319,7 @@ export default function SurveyForm() {
               {fieldErrors.email && <p className="text-xs text-destructive mt-1">{fieldErrors.email}</p>}
             </div>
 
-            <div>
+            <div className={!formData.email.trim() ? "opacity-50 pointer-events-none" : ""}>
               <Label>{lbl("label_phone", "label_phone", "Telefone")}</Label>
               <Input
                 className="mt-1"
@@ -339,7 +339,7 @@ export default function SurveyForm() {
           </div>
 
           {/* Seção 2 — Vínculo */}
-          <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
+          <div className={`bg-white rounded-2xl shadow-sm p-6 space-y-4 transition-opacity duration-300 ${!formData.full_name.trim() || !formData.email.trim() ? "opacity-50 pointer-events-none" : ""}`}>
             <h3 className="font-semibold text-foreground">{lbl("section2_title", "section2_title", "Vínculo Bold Life")}</h3>
             <div id="field-is_associate">
               <Label className="mb-2 block">{lbl("label_is_associate", "label_is_associate", "Você é associado(a) Bold Life? *")}</Label>
@@ -385,7 +385,7 @@ export default function SurveyForm() {
 
           {/* Seção 3 — Marcas e Produtos */}
           {showBrands && (
-            <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
+            <div className={`bg-white rounded-2xl shadow-sm p-6 space-y-4 transition-opacity duration-300 ${!formData.full_name.trim() || !formData.email.trim() || formData.is_associate === null || formData.is_associate === undefined || formData.is_associate === "" ? "opacity-50 pointer-events-none" : ""}`}>
               <h3 className="font-semibold text-foreground">{lbl("section3_title", "section3_title", "Marcas e Produtos")}</h3>
               <div id="field-desired_brands">
                 <Label>{lbl("label_brands", "label_brands", "Quais marcas você gostaria de ver na plataforma?")} *</Label>
@@ -403,7 +403,7 @@ export default function SurveyForm() {
 
           {/* Seção 4 — Avaliação */}
           {showRating && (
-            <div id="field-satisfaction_rating" className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
+            <div id="field-satisfaction_rating" className={`bg-white rounded-2xl shadow-sm p-6 space-y-4 transition-opacity duration-300 ${showBrands && (formData.desired_brands.length === 0 || formData.desired_products.length === 0) ? "opacity-50 pointer-events-none" : ""}`}>
               <h3 className="font-semibold text-foreground">{lbl("section4_title", "section4_title", "Avaliação e Opinião")}</h3>
               <div>
                 <Label className="mb-2 block">{lbl("label_rating", "label_rating", "Como você avalia o ecossistema Bold Life?")} *</Label>
